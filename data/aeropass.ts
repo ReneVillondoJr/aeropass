@@ -9,7 +9,14 @@
 | No external API
 | No real payment gateway
 |
-| Everything is stored locally in memory through this seed object.
+| This file is the single source of truth for the local AeroPass system.
+|
+| IMPORTANT:
+| - Store canonical records only once.
+| - Related records use IDs.
+| - Shared read/lookup functions live in this file.
+| - Public, customer, staff, and admin modules read the same records.
+| - Do not create duplicate business data in module-specific data files.
 |--------------------------------------------------------------------------
 */
 
@@ -639,12 +646,18 @@ export const users: User[] = [
 
 export const demoCredentials = {
   password: 'Password123!',
+
   accounts: {
     superAdmin: 'superadmin@aeropass.local',
+
     admin: 'admin@aeropass.local',
+
     flightManager: 'flightmanager@aeropass.local',
+
     checkInAgent: 'checkin@aeropass.local',
+
     gateAgent: 'gate@aeropass.local',
+
     customer: 'juan@aeropass.local',
   },
 };
@@ -945,19 +958,23 @@ export const aircraftSeats: AircraftSeat[] = [
     ['A', 'B', 'C', 'D', 'E', 'F'],
     [1, 2, 3],
   ),
+
   ...generateSeats(
     'aircraft-a321-001',
     36,
     ['A', 'B', 'C', 'D', 'E', 'F'],
     [1, 2, 3, 4],
   ),
+
   ...generateSeats(
     'aircraft-a220-001',
     24,
     ['A', 'B', 'C', 'D', 'E', 'F'],
     [1, 2, 3],
   ),
+
   ...generateSeats('aircraft-atr-001', 12, ['A', 'B', 'C', 'D', 'E', 'F']),
+
   ...generateSeats(
     'aircraft-a320-002',
     30,
@@ -1094,7 +1111,7 @@ export const schedules: Schedule[] = [
 ];
 
 /* -------------------------------------------------------------------------- */
-/* HELPER FOR FLIGHTS                                                         */
+/* FLIGHT CREATION                                                            */
 /* -------------------------------------------------------------------------- */
 
 function createFlight(
@@ -1116,10 +1133,22 @@ function createFlight(
 
   const route = routes.find((item) => item.id === schedule.routeId);
 
+  if (!route) {
+    throw new Error(`Missing route: ${schedule.routeId}`);
+  }
+
   const aircraftItem = aircraft.find((item) => item.id === schedule.aircraftId);
 
-  if (!route || !aircraftItem) {
-    throw new Error(`Invalid route or aircraft`);
+  if (!aircraftItem) {
+    throw new Error(`Missing aircraft: ${schedule.aircraftId}`);
+  }
+
+  const originAirport = airports.find(
+    (airport) => airport.id === route.originAirportId,
+  );
+
+  if (!originAirport) {
+    throw new Error(`Missing origin airport: ${route.originAirportId}`);
   }
 
   return {
@@ -1134,7 +1163,7 @@ function createFlight(
     arrivalTime: schedule.arrivalTime,
     durationMinutes: route.durationMinutes,
     gate,
-    terminal: 'Terminal 2',
+    terminal: originAirport.terminal,
     status,
     capacity: aircraftItem.totalSeats,
     seatsAvailable,
@@ -2674,157 +2703,524 @@ export const activityLogs: ActivityLog[] = [
 ];
 
 /* -------------------------------------------------------------------------- */
-/* DERIVED DATA                                                                */
+/* SHARED LOOKUPS                                                             */
 /* -------------------------------------------------------------------------- */
 
-export const dashboardStats = {
-  totalFlights: flights.length,
-  todaysFlights: flights.filter(
-    (flight) => flight.departureDate === '2026-09-22',
-  ).length,
-  activeFlights: flights.filter(
-    (flight) => flight.status !== 'CANCELLED' && flight.status !== 'ARRIVED',
-  ).length,
-  totalBookings: bookings.length,
-  confirmedBookings: bookings.filter(
-    (booking) => booking.status === 'CONFIRMED',
-  ).length,
-  pendingPayments: bookings.filter(
-    (booking) => booking.paymentStatus === 'PENDING',
-  ).length,
-  checkedInPassengers: checkIns.filter(
-    (checkIn) => checkIn.status === 'COMPLETED',
-  ).length,
-  boardedPassengers: boarding.filter((item) => item.status === 'BOARDED')
-    .length,
-  totalTickets: tickets.length,
-  validTickets: tickets.filter((ticket) => ticket.status === 'VALID').length,
-  totalPassengers: passengers.length,
-  totalAircraft: aircraft.length,
-  activeAircraft: aircraft.filter((item) => item.status === 'ACTIVE').length,
-  totalAirports: airports.length,
-  totalRoutes: routes.length,
-};
+export function getUserById(userId: string) {
+  return users.find((user) => user.id === userId);
+}
 
-export const revenueStats = {
-  grossRevenue: payments
-    .filter((payment) => payment.status === 'PAID')
-    .reduce((sum, payment) => sum + payment.amount, 0),
+export function getRoleByCode(roleCode: RoleCode) {
+  return roles.find((role) => role.code === roleCode);
+}
 
-  pendingRevenue: payments
-    .filter((payment) => payment.status === 'PENDING')
-    .reduce((sum, payment) => sum + payment.amount, 0),
+export function getAirportById(airportId: string) {
+  return airports.find((airport) => airport.id === airportId);
+}
 
-  refundedAmount: refunds
-    .filter((refund) => refund.status === 'COMPLETED')
-    .reduce((sum, refund) => sum + refund.amount, 0),
+export function getAirportByCode(code: string) {
+  return airports.find(
+    (airport) => airport.code.toUpperCase() === code.toUpperCase(),
+  );
+}
 
-  averageBookingValue:
-    bookings.length > 0 ?
-      Math.round(
-        bookings.reduce((sum, booking) => sum + booking.total, 0) /
-          bookings.length,
-      )
-    : 0,
-};
+export function getRouteById(routeId: string) {
+  return routes.find((route) => route.id === routeId);
+}
 
-/* -------------------------------------------------------------------------- */
-/* RECENT FLIGHTS                                                              */
-/* -------------------------------------------------------------------------- */
+export function getAircraftById(aircraftId: string) {
+  return aircraft.find((item) => item.id === aircraftId);
+}
 
-export const recentFlights = flights.slice(0, 8);
+export function getAircraftSeats(aircraftId: string) {
+  return aircraftSeats.filter((seat) => seat.aircraftId === aircraftId);
+}
 
-/* -------------------------------------------------------------------------- */
-/* UPCOMING FLIGHTS                                                            */
-/* -------------------------------------------------------------------------- */
+export function getScheduleById(scheduleId: string) {
+  return schedules.find((schedule) => schedule.id === scheduleId);
+}
 
-export const upcomingFlights = flights.filter(
-  (flight) =>
-    flight.departureDate >= '2026-09-22' && flight.status !== 'CANCELLED',
-);
+export function getFlightById(flightId: string) {
+  return flights.find((flight) => flight.id === flightId);
+}
 
-/* -------------------------------------------------------------------------- */
-/* CUSTOMER DASHBOARD DATA                                                     */
-/* -------------------------------------------------------------------------- */
+export function getFareClassById(fareClassId: string) {
+  return fareClasses.find((fareClass) => fareClass.id === fareClassId);
+}
 
-export const customerDashboard = {
-  userId: 'user-006',
+export function getPassengerById(passengerId: string) {
+  return passengers.find((passenger) => passenger.id === passengerId);
+}
 
-  upcomingTrips: bookings.filter(
-    (booking) =>
-      booking.customerId === 'user-006' &&
-      ['CONFIRMED', 'CHECKED_IN'].includes(booking.status),
-  ),
+export function getBookingById(bookingId: string) {
+  return bookings.find((booking) => booking.id === bookingId);
+}
 
-  recentBookings: bookings.filter(
-    (booking) => booking.customerId === 'user-006',
-  ),
+export function getReservationById(reservationId: string) {
+  return reservations.find((reservation) => reservation.id === reservationId);
+}
 
-  notifications: notifications.filter(
-    (notification) => notification.userId === 'user-006',
-  ),
-};
+export function getPaymentById(paymentId: string) {
+  return payments.find((payment) => payment.id === paymentId);
+}
+
+export function getTicketById(ticketId: string) {
+  return tickets.find((ticket) => ticket.id === ticketId);
+}
+
+export function getCheckInById(checkInId: string) {
+  return checkIns.find((checkIn) => checkIn.id === checkInId);
+}
+
+export function getBoardingById(boardingId: string) {
+  return boarding.find((item) => item.id === boardingId);
+}
+
+export function getBaggageById(baggageId: string) {
+  return baggage.find((item) => item.id === baggageId);
+}
+
+export function getRefundById(refundId: string) {
+  return refunds.find((refund) => refund.id === refundId);
+}
 
 /* -------------------------------------------------------------------------- */
-/* STAFF DASHBOARD DATA                                                        */
+/* FLIGHT READ FUNCTIONS                                                      */
 /* -------------------------------------------------------------------------- */
 
-export const staffDashboard = {
-  todayFlights: flights.filter(
-    (flight) => flight.departureDate === '2026-09-22',
-  ),
+export function getFlightDetails(flightId: string) {
+  const flight = getFlightById(flightId);
 
-  todayCheckIns: checkIns.filter(
-    (checkIn) =>
-      checkIn.status === 'COMPLETED' &&
-      checkIn.checkedInAt?.startsWith('2026-09-22'),
-  ),
+  if (!flight) {
+    return null;
+  }
 
-  todayBoardings: boarding.filter((item) =>
-    item.boardedAt?.startsWith('2026-09-22'),
-  ),
+  const route = getRouteById(flight.routeId);
 
-  baggageInProgress: baggage.filter(
-    (item) => item.status === 'CHECKED' || item.status === 'IN_TRANSIT',
-  ),
-};
+  const schedule = getScheduleById(flight.scheduleId);
+
+  const aircraftItem = getAircraftById(flight.aircraftId);
+
+  const origin = route ? getAirportById(route.originAirportId) : undefined;
+
+  const destination =
+    route ? getAirportById(route.destinationAirportId) : undefined;
+
+  const fares = flightFares
+    .filter((fare) => fare.flightId === flight.id)
+    .map((fare) => ({
+      ...fare,
+      fareClass: getFareClassById(fare.fareClassId),
+    }));
+
+  return {
+    flight,
+    route,
+    schedule,
+    aircraft: aircraftItem,
+    origin,
+    destination,
+    fares,
+  };
+}
+
+export function searchFlights({
+  from,
+  to,
+  departureDate,
+}: {
+  from?: string;
+  to?: string;
+  departureDate?: string;
+}) {
+  return flights.filter((flight) => {
+    if (departureDate && flight.departureDate !== departureDate) {
+      return false;
+    }
+
+    const route = getRouteById(flight.routeId);
+
+    if (!route) {
+      return false;
+    }
+
+    const origin = getAirportById(route.originAirportId);
+
+    const destination = getAirportById(route.destinationAirportId);
+
+    if (from && origin?.code !== from.toUpperCase()) {
+      return false;
+    }
+
+    if (to && destination?.code !== to.toUpperCase()) {
+      return false;
+    }
+
+    return flight.status !== 'CANCELLED';
+  });
+}
 
 /* -------------------------------------------------------------------------- */
-/* COMPLETE LOCAL DATABASE                                                     */
+/* PUBLIC DESTINATION READ FUNCTION                                           */
+/* -------------------------------------------------------------------------- */
+
+export function getPopularDestinations(limit = 4) {
+  const today = '2026-09-23';
+
+  const destinationIds = new Map<
+    string,
+    {
+      airport: Airport;
+      activeFlights: number;
+    }
+  >();
+
+  for (const route of routes) {
+    if (route.status !== 'ACTIVE') {
+      continue;
+    }
+
+    const destination = getAirportById(route.destinationAirportId);
+
+    if (!destination) {
+      continue;
+    }
+
+    const activeFlightCount = flights.filter(
+      (flight) =>
+        flight.routeId === route.id &&
+        flight.departureDate >= today &&
+        flight.status !== 'CANCELLED',
+    ).length;
+
+    if (activeFlightCount === 0) {
+      continue;
+    }
+
+    const existing = destinationIds.get(destination.id);
+
+    destinationIds.set(destination.id, {
+      airport: destination,
+      activeFlights: (existing?.activeFlights ?? 0) + activeFlightCount,
+    });
+  }
+
+  return Array.from(destinationIds.values())
+    .sort((a, b) => b.activeFlights - a.activeFlights)
+    .slice(0, limit)
+    .map(({ airport }) => ({
+      id: airport.id,
+      code: airport.code,
+      city: airport.city,
+      airport: airport.name,
+      href: `/search?to=${encodeURIComponent(airport.code)}`,
+    }));
+}
+
+/* -------------------------------------------------------------------------- */
+/* BOOKING READ FUNCTIONS                                                     */
+/* -------------------------------------------------------------------------- */
+
+export function getBookingsByCustomerId(customerId: string) {
+  return bookings.filter((booking) => booking.customerId === customerId);
+}
+
+export function getPassengersByBookingId(bookingId: string) {
+  return passengers.filter((passenger) => passenger.bookingId === bookingId);
+}
+
+export function getReservationsByBookingId(bookingId: string) {
+  return reservations.filter(
+    (reservation) => reservation.bookingId === bookingId,
+  );
+}
+
+export function getTicketsByBookingId(bookingId: string) {
+  return tickets.filter((ticket) => ticket.bookingId === bookingId);
+}
+
+export function getPaymentByBookingId(bookingId: string) {
+  return payments.find((payment) => payment.bookingId === bookingId);
+}
+
+export function getPaymentAttemptsByBookingId(bookingId: string) {
+  return paymentAttempts.filter((attempt) => attempt.bookingId === bookingId);
+}
+
+export function getRefundByBookingId(bookingId: string) {
+  return refunds.find((refund) => refund.bookingId === bookingId);
+}
+
+export function getBookingDetails(bookingId: string) {
+  const booking = getBookingById(bookingId);
+
+  if (!booking) {
+    return null;
+  }
+
+  return {
+    booking,
+
+    passengers: getPassengersByBookingId(bookingId),
+
+    reservations: getReservationsByBookingId(bookingId),
+
+    tickets: getTicketsByBookingId(bookingId),
+
+    payment: getPaymentByBookingId(bookingId),
+
+    paymentAttempts: getPaymentAttemptsByBookingId(bookingId),
+
+    refund: getRefundByBookingId(bookingId),
+
+    flight: getFlightDetails(booking.flightId),
+  };
+}
+
+/* -------------------------------------------------------------------------- */
+/* TICKET READ FUNCTIONS                                                      */
+/* -------------------------------------------------------------------------- */
+
+export function getTicketsByPassengerId(passengerId: string) {
+  return tickets.filter((ticket) => ticket.passengerId === passengerId);
+}
+
+export function getTicketDetails(ticketId: string) {
+  const ticket = getTicketById(ticketId);
+
+  if (!ticket) {
+    return null;
+  }
+
+  const passenger = getPassengerById(ticket.passengerId);
+
+  const booking = getBookingDetails(ticket.bookingId);
+
+  const checkIn = checkIns.find((item) => item.ticketId === ticket.id);
+
+  const boardingRecord = boarding.find((item) => item.ticketId === ticket.id);
+
+  return {
+    ticket,
+    passenger,
+    booking,
+    flight: getFlightDetails(ticket.flightId),
+    checkIn,
+    boarding: boardingRecord,
+  };
+}
+
+/* -------------------------------------------------------------------------- */
+/* OPERATIONS READ FUNCTIONS                                                  */
+/* -------------------------------------------------------------------------- */
+
+export function getCheckInsByFlightId(flightId: string) {
+  return checkIns.filter((checkIn) => checkIn.flightId === flightId);
+}
+
+export function getBoardingByFlightId(flightId: string) {
+  return boarding.filter((item) => item.flightId === flightId);
+}
+
+export function getBaggageByBookingId(bookingId: string) {
+  return baggage.filter((item) => item.bookingId === bookingId);
+}
+
+export function getBaggageByPassengerId(passengerId: string) {
+  return baggage.filter((item) => item.passengerId === passengerId);
+}
+
+export function getOperationsByFlightId(flightId: string) {
+  return {
+    flight: getFlightDetails(flightId),
+
+    checkIns: getCheckInsByFlightId(flightId),
+
+    boardings: getBoardingByFlightId(flightId),
+
+    baggage: baggage.filter((item) => {
+      const booking = getBookingById(item.bookingId);
+
+      return booking?.flightId === flightId;
+    }),
+  };
+}
+
+/* -------------------------------------------------------------------------- */
+/* CUSTOMER READ FUNCTIONS                                                    */
+/* -------------------------------------------------------------------------- */
+
+export function getCustomerNotifications(userId: string) {
+  return notifications.filter((notification) => notification.userId === userId);
+}
+
+export function getCustomerDashboard(userId: string, date = '2026-09-23') {
+  const customerBookings = getBookingsByCustomerId(userId);
+
+  const upcomingTrips = customerBookings.filter((booking) => {
+    if (!['CONFIRMED', 'CHECKED_IN'].includes(booking.status)) {
+      return false;
+    }
+
+    const flight = getFlightById(booking.flightId);
+
+    return Boolean(flight && flight.departureDate >= date);
+  });
+
+  return {
+    userId,
+    upcomingTrips,
+    recentBookings: customerBookings,
+    notifications: getCustomerNotifications(userId),
+  };
+}
+
+/* -------------------------------------------------------------------------- */
+/* ADMIN / STAFF READ FUNCTIONS                                               */
+/* -------------------------------------------------------------------------- */
+
+export function getDashboardStats(date = '2026-09-23') {
+  return {
+    totalFlights: flights.length,
+
+    todaysFlights: flights.filter((flight) => flight.departureDate === date)
+      .length,
+
+    activeFlights: flights.filter(
+      (flight) => flight.status !== 'CANCELLED' && flight.status !== 'ARRIVED',
+    ).length,
+
+    totalBookings: bookings.length,
+
+    confirmedBookings: bookings.filter(
+      (booking) => booking.status === 'CONFIRMED',
+    ).length,
+
+    pendingPayments: bookings.filter(
+      (booking) => booking.paymentStatus === 'PENDING',
+    ).length,
+
+    checkedInPassengers: checkIns.filter(
+      (checkIn) => checkIn.status === 'COMPLETED',
+    ).length,
+
+    boardedPassengers: boarding.filter((item) => item.status === 'BOARDED')
+      .length,
+
+    totalTickets: tickets.length,
+
+    validTickets: tickets.filter((ticket) => ticket.status === 'VALID').length,
+
+    totalPassengers: passengers.length,
+
+    totalAircraft: aircraft.length,
+
+    activeAircraft: aircraft.filter((item) => item.status === 'ACTIVE').length,
+
+    totalAirports: airports.length,
+
+    totalRoutes: routes.length,
+  };
+}
+
+export function getRevenueStats() {
+  const paid = payments.filter((payment) => payment.status === 'PAID');
+
+  const pending = payments.filter((payment) => payment.status === 'PENDING');
+
+  const completedRefunds = refunds.filter(
+    (refund) => refund.status === 'COMPLETED',
+  );
+
+  return {
+    grossRevenue: paid.reduce((sum, payment) => sum + payment.amount, 0),
+
+    pendingRevenue: pending.reduce((sum, payment) => sum + payment.amount, 0),
+
+    refundedAmount: completedRefunds.reduce(
+      (sum, refund) => sum + refund.amount,
+      0,
+    ),
+
+    averageBookingValue:
+      bookings.length > 0 ?
+        Math.round(
+          bookings.reduce((sum, booking) => sum + booking.total, 0) /
+            bookings.length,
+        )
+      : 0,
+  };
+}
+
+export function getRecentFlights(limit = 8) {
+  return flights.slice(0, limit);
+}
+
+export function getUpcomingFlights(date = '2026-09-23') {
+  return flights.filter(
+    (flight) => flight.departureDate >= date && flight.status !== 'CANCELLED',
+  );
+}
+
+export function getStaffDashboard(date = '2026-09-23') {
+  return {
+    todayFlights: flights.filter((flight) => flight.departureDate === date),
+
+    todayCheckIns: checkIns.filter(
+      (checkIn) =>
+        checkIn.status === 'COMPLETED' && checkIn.checkedInAt?.startsWith(date),
+    ),
+
+    todayBoardings: boarding.filter((item) => item.boardedAt?.startsWith(date)),
+
+    baggageInProgress: baggage.filter(
+      (item) => item.status === 'CHECKED' || item.status === 'IN_TRANSIT',
+    ),
+  };
+}
+
+/* -------------------------------------------------------------------------- */
+/* COMPLETE LOCAL DATASET                                                     */
 /* -------------------------------------------------------------------------- */
 
 export const aeroPassData = {
   roles,
   permissions,
+
   users,
+
   airports,
   routes,
+
   aircraft,
   aircraftSeats,
+
   schedules,
   flights,
+
   fareClasses,
   flightFares,
+
   passengers,
+
   bookings,
   reservations,
+
   paymentAttempts,
   payments,
+  refunds,
+
   tickets,
   checkIns,
   boarding,
   baggage,
-  refunds,
+
   coupons,
   notifications,
+
   airportStaffAssignments,
   activityLogs,
-  dashboardStats,
-  revenueStats,
-  recentFlights,
-  upcomingFlights,
-  customerDashboard,
-  staffDashboard,
+
   demoCredentials,
 };
 

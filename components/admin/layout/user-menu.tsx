@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -40,43 +41,45 @@ export function AdminUserMenu() {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align='end' sideOffset={8} className='w-56'>
-        <DropdownMenuLabel className='font-normal'>
-          <div className='flex items-center gap-3'>
-            <Avatar className='size-9'>
-              <AvatarFallback className='bg-muted text-xs font-semibold'>
-                AU
-              </AvatarFallback>
-            </Avatar>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className='font-normal'>
+            <div className='flex items-center gap-3'>
+              <Avatar className='size-9'>
+                <AvatarFallback className='bg-muted text-xs font-semibold'>
+                  AU
+                </AvatarFallback>
+              </Avatar>
 
-            <div className='min-w-0'>
-              <p className='truncate text-sm font-medium'>Admin User</p>
+              <div className='min-w-0'>
+                <p className='truncate text-sm font-medium'>Admin User</p>
 
-              <p className='truncate text-xs text-muted-foreground'>
-                Administrator
-              </p>
+                <p className='truncate text-xs text-muted-foreground'>
+                  Administrator
+                </p>
+              </div>
             </div>
-          </div>
-        </DropdownMenuLabel>
+          </DropdownMenuLabel>
 
-        <DropdownMenuSeparator />
+          <DropdownMenuSeparator />
 
-        <DropdownMenuItem
-          onClick={() => router.push('/admin/settings/profile')}
-        >
-          <UserRound className='size-4' />
-          <span>Profile</span>
-        </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => router.push('/admin/settings/profile')}
+          >
+            <UserRound className='size-4' />
+            <span>Profile</span>
+          </DropdownMenuItem>
 
-        <DropdownMenuItem onClick={() => router.push('/admin/settings')}>
-          <Settings className='size-4' />
-          <span>Settings</span>
-        </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => router.push('/admin/settings')}>
+            <Settings className='size-4' />
+            <span>Settings</span>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
 
         <DropdownMenuSeparator />
 
         <DropdownMenuItem
           onClick={() => {
-            // Add your local logout logic here.
+            // Add local logout logic here.
           }}
           className='text-destructive focus:text-destructive'
         >
