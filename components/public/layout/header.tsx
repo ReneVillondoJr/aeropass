@@ -1,12 +1,12 @@
 'use client';
 
-import { HelpCircle, Menu, Plane, UserRound } from 'lucide-react';
-
 import Link from 'next/link';
+
+import { HelpCircle, Menu, Plane, UserRound } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 
-export function HomeHeader() {
+export function PublicHeader() {
   return (
     <header className='sticky top-0 z-40 border-b border-sky-100/80 bg-white/80 backdrop-blur-xl'>
       <div className='mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-5 sm:px-8 lg:px-10'>

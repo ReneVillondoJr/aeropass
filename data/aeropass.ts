@@ -3224,8 +3224,63 @@ export const aeroPassData = {
   demoCredentials,
 };
 
+export function getBookingByReference(bookingReference: string) {
+  const normalizedReference = bookingReference.trim().toUpperCase();
+
+  const booking = bookings.find(
+    (item) => item.bookingReference.toUpperCase() === normalizedReference,
+  );
+
+  if (!booking) {
+    return null;
+  }
+
+  return {
+    ...booking,
+    passengers: getPassengersByBookingId(booking.id),
+    reservations: getReservationsByBookingId(booking.id),
+    tickets: getTicketsByBookingId(booking.id),
+    payment: getPaymentByBookingId(booking.id),
+    paymentAttempts: getPaymentAttemptsByBookingId(booking.id),
+    refund: getRefundByBookingId(booking.id),
+    flight: getFlightDetails(booking.flightId),
+  };
+}
+
+export function getCheckInByTicketId(ticketId: string) {
+  return checkIns.find((checkIn) => checkIn.ticketId === ticketId);
+}
+
 /* -------------------------------------------------------------------------- */
 /* DEFAULT EXPORT                                                             */
 /* -------------------------------------------------------------------------- */
 
+export function getBoardingDetailsByFlightId(flightId: string) {
+  const flight = getFlightDetails(flightId);
+
+  if (!flight) {
+    return [];
+  }
+
+  const flightBoarding = getBoardingByFlightId(flightId);
+
+  return flightBoarding.map((boardingRecord) => {
+    const passenger = getPassengerById(boardingRecord.passengerId);
+
+    const ticket = getTicketById(boardingRecord.ticketId);
+
+    const reservation = reservations.find(
+      (item) =>
+        item.passengerId === boardingRecord.passengerId &&
+        item.flightId === flightId,
+    );
+
+    return {
+      boarding: boardingRecord,
+      passenger,
+      ticket,
+      reservation,
+    };
+  });
+}
 export default aeroPassData;
