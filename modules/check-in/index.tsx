@@ -4,13 +4,7 @@
 
 import Link from 'next/link';
 
-import {
-  ArrowLeft,
-  CheckCircle2,
-  LockKeyhole,
-  PlaneTakeoff,
-  ShieldCheck,
-} from 'lucide-react';
+import { CheckCircle2, LockKeyhole, ShieldCheck } from 'lucide-react';
 
 import { CheckInForm } from './components/check-in-form';
 import { CheckInSummary } from './components/check-in-summary';
@@ -23,26 +17,8 @@ export function CheckIn() {
   return (
     <div className='bg-[#f4f9fc]'>
       <section className='border-b border-sky-100 bg-white'>
-        <div className='mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:px-10 lg:py-14'>
-          <div className='flex items-center gap-2 text-xs font-medium text-slate-400'>
-            <Link
-              href='/'
-              className='inline-flex items-center gap-1.5 transition-colors hover:text-[#102a43]'
-            >
-              <ArrowLeft className='size-3.5' />
-              AeroPass
-            </Link>
-
-            <span>/</span>
-
-            <span className='text-[#3f7194]'>Check-in</span>
-          </div>
-
+        <div className='mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:px-10 lg:py-12'>
           <div className='mt-8 max-w-2xl'>
-            <div className='flex size-11 items-center justify-center rounded-xl bg-[#e5f5fc] text-[#3f88b2]'>
-              <PlaneTakeoff className='size-5' />
-            </div>
-
             <p className='mt-5 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400'>
               Online check-in
             </p>
