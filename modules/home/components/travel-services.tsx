@@ -1,6 +1,6 @@
-import { ArrowRight, Plane, ScanLine, Ticket } from 'lucide-react';
-
 import Link from 'next/link';
+
+import { ArrowRight, Plane, ScanLine, Ticket } from 'lucide-react';
 
 const travelServices = [
   {
@@ -45,35 +45,38 @@ export function TravelServices() {
           </p>
         </div>
 
-        <div className='mt-9 grid gap-4 lg:grid-cols-3'>
-          {travelServices.map((service) => {
-            const Icon = service.icon;
+        {/* Scrollable services */}
+        <div className='mt-9 max-h-[430px] overflow-y-auto pr-2'>
+          <div className='grid gap-4 sm:grid-cols-2'>
+            {travelServices.map((service) => {
+              const Icon = service.icon;
 
-            return (
-              <Link
-                key={service.title}
-                href={service.href}
-                className='group rounded-2xl border border-sky-100 bg-white p-6 transition-all duration-200 hover:-translate-y-1 hover:border-sky-200 hover:shadow-[0_18px_50px_-30px_rgba(16,42,67,0.30)]'
-              >
-                <div className='flex size-11 items-center justify-center rounded-xl bg-[#e5f5fc] text-[#3f88b2]'>
-                  <Icon className='size-5' />
-                </div>
+              return (
+                <Link
+                  key={service.title}
+                  href={service.href}
+                  className='group rounded-2xl border border-sky-100 bg-white p-6 transition-all duration-200 hover:-translate-y-1 hover:border-sky-200 hover:shadow-[0_18px_50px_-30px_rgba(16,42,67,0.30)]'
+                >
+                  <div className='flex size-11 items-center justify-center rounded-xl bg-[#e5f5fc] text-[#3f88b2]'>
+                    <Icon className='size-5' />
+                  </div>
 
-                <h3 className='mt-5 text-base font-semibold text-[#102a43]'>
-                  {service.title}
-                </h3>
+                  <h3 className='mt-5 text-base font-semibold text-[#102a43]'>
+                    {service.title}
+                  </h3>
 
-                <p className='mt-2 text-sm leading-6 text-slate-500'>
-                  {service.description}
-                </p>
+                  <p className='mt-2 text-sm leading-6 text-slate-500'>
+                    {service.description}
+                  </p>
 
-                <div className='mt-5 flex items-center gap-2 text-xs font-medium text-[#3f7194]'>
-                  Learn more
-                  <ArrowRight className='size-3.5 transition-transform group-hover:translate-x-1' />
-                </div>
-              </Link>
-            );
-          })}
+                  <div className='mt-5 flex items-center gap-2 text-xs font-medium text-[#3f7194]'>
+                    Learn more
+                    <ArrowRight className='size-3.5 transition-transform group-hover:translate-x-1' />
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>

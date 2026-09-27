@@ -3237,12 +3237,19 @@ export function getBookingByReference(bookingReference: string) {
 
   return {
     ...booking,
+
     passengers: getPassengersByBookingId(booking.id),
+
     reservations: getReservationsByBookingId(booking.id),
+
     tickets: getTicketsByBookingId(booking.id),
+
     payment: getPaymentByBookingId(booking.id),
+
     paymentAttempts: getPaymentAttemptsByBookingId(booking.id),
+
     refund: getRefundByBookingId(booking.id),
+
     flight: getFlightDetails(booking.flightId),
   };
 }
@@ -3251,6 +3258,9 @@ export function getCheckInByTicketId(ticketId: string) {
   return checkIns.find((checkIn) => checkIn.ticketId === ticketId);
 }
 
+export function getBoardingByTicketId(ticketId: string) {
+  return boarding.find((item) => item.ticketId === ticketId);
+}
 /* -------------------------------------------------------------------------- */
 /* DEFAULT EXPORT                                                             */
 /* -------------------------------------------------------------------------- */

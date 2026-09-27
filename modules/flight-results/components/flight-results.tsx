@@ -1,7 +1,6 @@
 import { Plane, SearchX } from 'lucide-react';
 
 import { FlightResultCard } from './flight-result-card';
-
 import type { FlightSearchResult } from '../types/search';
 
 interface FlightResultsProps {
@@ -62,7 +61,7 @@ export function FlightResults({ results, hasSearched }: FlightResultsProps) {
         </div>
       </div>
 
-      <div className='space-y-4'>
+      <div className='max-h-[460px] space-y-4 overflow-y-auto pr-1'>
         {results.map((flight) => (
           <FlightResultCard key={flight.id} flight={flight} />
         ))}
