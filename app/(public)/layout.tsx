@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 
 import { PublicFooter } from '@/components/public/layout/footer';
 import { PublicHeader } from '@/components/public/layout/header';
+import { AiConcierge } from '@/modules/ai-concierge';
 
 export default function PublicLayout({
   children,
@@ -15,6 +16,7 @@ export default function PublicLayout({
       <main className='flex-1'>{children}</main>
 
       <PublicFooter />
+      <AiConcierge />
     </div>
   );
 }
