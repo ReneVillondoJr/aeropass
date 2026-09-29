@@ -1,5 +1,5 @@
-import { AdminDashboard } from '@/modules/admin/dashboard';
+import { Dashboard } from '@/modules/admin/dashboard';
 
-export default function AdminDashboardPage() {
-  return <AdminDashboard />;
+export default function DashboardPage() {
+  return <Dashboard />;
 }
