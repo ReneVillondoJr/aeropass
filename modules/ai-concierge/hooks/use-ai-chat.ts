@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-import { getMockAiResponse } from '../data/ai-concierge';
+import { askAeroPassAi } from '../services/ai-concierge';
 
 import type { AiChatMessage } from '../types/ai-concierge';
 
@@ -37,20 +37,35 @@ export function useAiChat() {
     setInput('');
     setIsTyping(true);
 
-    await new Promise((resolve) => setTimeout(resolve, 650));
+    try {
+      const response = await askAeroPassAi(value);
 
-    const response = getMockAiResponse(value);
+      const assistantMessage: AiChatMessage = {
+        id: `assistant-${Date.now()}`,
+        role: 'assistant',
+        content: response.content,
+        actions: response.actions,
+      };
 
-    const assistantMessage: AiChatMessage = {
-      id: `assistant-${Date.now()}`,
-      role: 'assistant',
-      content: response.content,
-      actions: response.actions,
-    };
+      setMessages((current) => [...current, assistantMessage]);
+    } catch {
+      const errorMessage: AiChatMessage = {
+        id: `assistant-error-${Date.now()}`,
+        role: 'assistant',
+        content:
+          'I’m having trouble responding right now. Please try again or use the AeroPass Help Center for assistance.',
+        actions: [
+          {
+            label: 'Open Help Center',
+            href: '/help',
+          },
+        ],
+      };
 
-    setMessages((current) => [...current, assistantMessage]);
-
-    setIsTyping(false);
+      setMessages((current) => [...current, errorMessage]);
+    } finally {
+      setIsTyping(false);
+    }
   }
 
   function resetChat() {

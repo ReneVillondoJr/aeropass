@@ -1,15 +1,13 @@
 import { z } from 'zod';
 
-export const supportRequestSchema = z.object({
-  name: z.string().trim().min(2, 'Enter your name.'),
+export const aiChatRequestSchema = z.object({
+  message: z
+    .string()
+    .trim()
+    .min(1, 'Message is required.')
+    .max(4000, 'Message is too long.'),
 
-  email: z.string().trim().email('Enter a valid email address.'),
-
-  bookingReference: z.string().trim().optional(),
-
-  category: z.string().trim().min(1, 'Select a support category.'),
-
-  message: z.string().trim().min(10, 'Please provide at least 10 characters.'),
+  previousResponseId: z.string().nullable().optional(),
 });
 
-export type SupportRequestSchema = z.infer<typeof supportRequestSchema>;
+export type AiChatRequest = z.infer<typeof aiChatRequestSchema>;

@@ -1,195 +1,216 @@
 import {
+  AlertTriangle,
+  ArrowUpRight,
   BriefcaseBusiness,
-  CircleHelp,
   CreditCard,
   Luggage,
-  Plane,
+  RefreshCcw,
   TicketCheck,
 } from 'lucide-react';
 
-import type { ChatAction, QuickAction, SuggestedQuestion } from '../types/help';
+import type { HelpArticle, HelpCategoryItem } from '../types/help';
 
-export const quickActions: QuickAction[] = [
+export const helpCategories: HelpCategoryItem[] = [
   {
-    id: 'check-in',
-    label: 'Check in',
-    description: 'Get ready for your upcoming flight.',
-    href: '/check-in',
-    icon: 'check-in',
-  },
-  {
-    id: 'manage-booking',
-    label: 'Manage booking',
-    description: 'View and manage an existing reservation.',
-    href: '/manage-booking',
+    id: 'booking',
+    title: 'Booking & tickets',
+    description:
+      'Learn about reservations, tickets, booking references, and your itinerary.',
     icon: 'booking',
   },
   {
-    id: 'flights',
-    label: 'Find a flight',
-    description: 'Search available AeroPass flights.',
-    href: '/search',
-    icon: 'flight',
+    id: 'check-in',
+    title: 'Check-in & boarding',
+    description:
+      'Learn how online check-in, boarding passes, and airport boarding work.',
+    icon: 'check-in',
   },
   {
     id: 'baggage',
-    label: 'Baggage',
-    description: 'Learn about baggage and allowances.',
-    href: '#chat',
+    title: 'Baggage',
+    description:
+      'Understand baggage allowances, checked bags, and baggage services.',
     icon: 'baggage',
   },
   {
     id: 'payments',
-    label: 'Payments',
-    description: 'Get help with payment questions.',
-    href: '#chat',
-    icon: 'payment',
+    title: 'Payments & refunds',
+    description:
+      'Find information about payments, failed transactions, and refunds.',
+    icon: 'payments',
   },
   {
-    id: 'support',
-    label: 'Contact support',
-    description: 'Send a message to the AeroPass team.',
-    href: '#support',
-    icon: 'support',
+    id: 'changes',
+    title: 'Changes & cancellations',
+    description:
+      'Understand flight changes, cancellations, and booking adjustments.',
+    icon: 'changes',
+  },
+  {
+    id: 'disruptions',
+    title: 'Flight disruptions',
+    description:
+      'Find guidance for delays, cancellations, and unexpected travel changes.',
+    icon: 'disruptions',
   },
 ];
 
-export const quickActionIcons = {
+export const helpCategoryIcons = {
   booking: BriefcaseBusiness,
   'check-in': TicketCheck,
-  flight: Plane,
   baggage: Luggage,
-  payment: CreditCard,
-  support: CircleHelp,
+  payments: CreditCard,
+  changes: RefreshCcw,
+  disruptions: AlertTriangle,
 } as const;
 
-export const suggestedQuestions: SuggestedQuestion[] = [
+export const popularArticles: HelpArticle[] = [
   {
-    id: 'check-in-question',
-    label: 'How do I check in?',
+    id: 'booking-reference',
+    category: 'BOOKING',
+    title: 'Where can I find my booking reference?',
+    description: 'Your booking reference is used to access your reservation.',
+    content:
+      'Your AeroPass booking reference is provided after a successful reservation. Use it together with the passenger last name when accessing Manage Booking or Check-in.',
   },
   {
-    id: 'booking-question',
-    label: 'How do I manage my booking?',
+    id: 'manage-booking',
+    category: 'BOOKING',
+    title: 'How do I manage my booking?',
+    description: 'Review your itinerary and available booking options.',
+    content:
+      'Open Manage Booking and provide your booking reference and passenger last name. AeroPass will retrieve the reservation associated with those details.',
   },
   {
-    id: 'boarding-pass-question',
-    label: 'Where can I find my boarding pass?',
+    id: 'check-in-online',
+    category: 'CHECK_IN',
+    title: 'How do I check in online?',
+    description: 'Complete your check-in before heading to the airport.',
+    content:
+      'Open Check-in, provide your booking reference and passenger last name, verify your trip information, and continue through the check-in process.',
   },
   {
-    id: 'baggage-question',
-    label: 'What is my baggage allowance?',
+    id: 'boarding-pass',
+    category: 'CHECK_IN',
+    title: 'Where can I find my boarding pass?',
+    description: 'Access your boarding pass after completing check-in.',
+    content:
+      'After completing the required check-in steps, your boarding pass becomes available through the appropriate AeroPass boarding-pass flow.',
+  },
+  {
+    id: 'baggage-allowance',
+    category: 'BAGGAGE',
+    title: 'What is my baggage allowance?',
+    description: 'Understand how baggage allowance relates to your fare.',
+    content:
+      'Baggage allowance depends on the fare associated with your reservation. Review the fare and booking details before completing your travel arrangements.',
+  },
+  {
+    id: 'extra-baggage',
+    category: 'BAGGAGE',
+    title: 'Can I add baggage after booking?',
+    description: 'Review additional baggage options for an existing trip.',
+    content:
+      'Additional baggage services depend on the reservation and fare rules. Use Manage Booking to review the options available for your trip.',
+  },
+  {
+    id: 'payment-pending',
+    category: 'PAYMENTS',
+    title: 'Why is my payment still pending?',
+    description: 'Understand what can happen while a payment is processing.',
+    content:
+      'A payment may remain pending while the transaction is being processed. Review your booking and payment information before starting another payment attempt.',
+  },
+  {
+    id: 'refund',
+    category: 'PAYMENTS',
+    title: 'How do refunds work?',
+    description: 'Learn what can affect refund availability.',
+    content:
+      'Refund availability depends on the booking status and applicable fare or booking conditions. Review Manage Booking for the information associated with your reservation.',
+  },
+  {
+    id: 'change-flight',
+    category: 'CHANGES',
+    title: 'Can I change my flight?',
+    description: 'Review options for modifying an existing reservation.',
+    content:
+      'Flight changes depend on your booking and fare conditions. Start with Manage Booking to review the options associated with your reservation.',
+  },
+  {
+    id: 'cancel-flight',
+    category: 'CHANGES',
+    title: 'How do I cancel a booking?',
+    description: 'Understand the first step when you need to cancel.',
+    content:
+      'Open Manage Booking to review the reservation and available cancellation options. Any applicable refund or fees depend on the booking conditions.',
   },
 ];
 
-export interface MockAiResponse {
-  content: string;
-  actions?: ChatAction[];
-}
+export const travelInformation = [
+  {
+    id: 'airport-arrival',
+    title: 'Preparing for the airport',
+    description:
+      'Give yourself enough time for airport entry, baggage, security, and boarding.',
+  },
+  {
+    id: 'travel-requirements',
+    title: 'Travel requirements',
+    description:
+      'Make sure you have the documents and information required for your journey.',
+  },
+  {
+    id: 'boarding-process',
+    title: 'Understanding boarding',
+    description:
+      'Review what happens between check-in, the gate, and boarding.',
+  },
+  {
+    id: 'flight-information',
+    title: 'Understanding your flight details',
+    description:
+      'Learn how to read your route, departure time, terminal, gate, and seat information.',
+  },
+];
 
-export function getMockAiResponse(message: string): MockAiResponse {
-  const normalized = message.trim().toLowerCase();
+export const disruptionItems = [
+  {
+    title: 'My flight is delayed',
+    description:
+      'Check your latest flight information and review your available booking options.',
+  },
+  {
+    title: 'My flight was cancelled',
+    description:
+      'Review your reservation and available options through Manage Booking.',
+  },
+  {
+    title: 'I missed my connection',
+    description:
+      'Review your itinerary and contact AeroPass support for assistance with your situation.',
+  },
+];
 
-  if (
-    normalized.includes('check in') ||
-    normalized.includes('check-in') ||
-    normalized.includes('checkin')
-  ) {
-    return {
-      content:
-        'I can help you with check-in. Open AeroPass Check-in and enter your booking reference together with the passenger last name. After your booking is verified, you can continue through the check-in process.',
-      actions: [
-        {
-          label: 'Start check-in',
-          href: '/check-in',
-        },
-      ],
-    };
-  }
+export const supportCategories = [
+  'Booking',
+  'Check-in',
+  'Baggage',
+  'Payment',
+  'Changes & refunds',
+  'Flight disruption',
+  'Other',
+];
 
-  if (
-    normalized.includes('booking') ||
-    normalized.includes('reservation') ||
-    normalized.includes('manage')
-  ) {
-    return {
-      content:
-        'You can review an existing reservation through Manage Booking. Enter your booking reference and passenger last name to view your trip information and available booking actions.',
-      actions: [
-        {
-          label: 'Manage booking',
-          href: '/manage-booking',
-        },
-      ],
-    };
-  }
+export const categoryLabels: Record<HelpArticle['category'], string> = {
+  BOOKING: 'Booking',
+  CHECK_IN: 'Check-in',
+  BAGGAGE: 'Baggage',
+  PAYMENTS: 'Payments',
+  CHANGES: 'Changes',
+  DISRUPTIONS: 'Disruptions',
+};
 
-  if (normalized.includes('boarding pass') || normalized.includes('boarding')) {
-    return {
-      content:
-        'Your boarding pass becomes available through the check-in and boarding-pass flow after the required check-in steps are completed.',
-      actions: [
-        {
-          label: 'Go to check-in',
-          href: '/check-in',
-        },
-      ],
-    };
-  }
-
-  if (
-    normalized.includes('baggage') ||
-    normalized.includes('luggage') ||
-    normalized.includes('bag')
-  ) {
-    return {
-      content:
-        'Baggage allowances depend on the fare associated with your reservation. For an existing trip, open Manage Booking to review the booking details and available options.',
-      actions: [
-        {
-          label: 'Manage booking',
-          href: '/manage-booking',
-        },
-      ],
-    };
-  }
-
-  if (
-    normalized.includes('flight') ||
-    normalized.includes('schedule') ||
-    normalized.includes('destination')
-  ) {
-    return {
-      content:
-        'You can search AeroPass flights by route and travel date. From the results, select a flight to review its detailed schedule and fare options.',
-      actions: [
-        {
-          label: 'Search flights',
-          href: '/search',
-        },
-      ],
-    };
-  }
-
-  if (
-    normalized.includes('payment') ||
-    normalized.includes('pay') ||
-    normalized.includes('refund')
-  ) {
-    return {
-      content:
-        'Payment and refund options depend on the booking status and payment method. For an existing reservation, start with Manage Booking so you can review the booking information first.',
-      actions: [
-        {
-          label: 'Manage booking',
-          href: '/manage-booking',
-        },
-      ],
-    };
-  }
-
-  return {
-    content:
-      'I can help with AeroPass bookings, check-in, boarding passes, flights, baggage, payments, and general travel questions. Try one of the suggested questions below or tell me what you need help with.',
-  };
-}
+export const helpActionIcons = {
+  booking: ArrowUpRight,
+} as const;

@@ -1,26 +1,36 @@
-export type ChatRole = 'assistant' | 'user';
+export type HelpCategory =
+  | 'BOOKING'
+  | 'CHECK_IN'
+  | 'BAGGAGE'
+  | 'PAYMENTS'
+  | 'CHANGES'
+  | 'DISRUPTIONS';
 
-export interface ChatAction {
-  label: string;
-  href: string;
-}
-
-export interface ChatMessage {
+export interface HelpCategoryItem {
   id: string;
-  role: ChatRole;
-  content: string;
-  actions?: ChatAction[];
-}
-
-export interface QuickAction {
-  id: string;
-  label: string;
+  title: string;
   description: string;
-  href: string;
-  icon: 'booking' | 'check-in' | 'flight' | 'baggage' | 'payment' | 'support';
+  icon:
+    | 'booking'
+    | 'check-in'
+    | 'baggage'
+    | 'payments'
+    | 'changes'
+    | 'disruptions';
 }
 
-export interface SuggestedQuestion {
+export interface HelpArticle {
   id: string;
-  label: string;
+  category: HelpCategory;
+  title: string;
+  description: string;
+  content: string;
+}
+
+export interface SupportRequest {
+  name: string;
+  email: string;
+  bookingReference: string;
+  category: string;
+  message: string;
 }
