@@ -20,7 +20,7 @@ export function Dashboard() {
   const { data, formattedOperationsDate } = useDashboard();
 
   return (
-    <div className='p-4 sm:p-6 lg:p-8'>
+    <div>
       <div className='mx-auto max-w-[1600px]'>
         <DashboardHeader operationsDate={formattedOperationsDate} />
 

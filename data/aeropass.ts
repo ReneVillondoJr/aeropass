@@ -3261,6 +3261,264 @@ export function getCheckInByTicketId(ticketId: string) {
 export function getBoardingByTicketId(ticketId: string) {
   return boarding.find((item) => item.ticketId === ticketId);
 }
+export type FlightSeatDisplayStatus =
+  | 'AVAILABLE'
+  | 'OCCUPIED'
+  | 'BOARDED'
+  | 'WAITING'
+  | 'DENIED';
+
+export interface FlightSeatDisplay {
+  seat: AircraftSeat;
+  status: FlightSeatDisplayStatus;
+  passengerId: string | null;
+  passengerName: string | null;
+  ticketNumber: string | null;
+  boardedAt: string | null;
+}
+
+export interface FlightSeatMap {
+  flight: Flight;
+  aircraft: Aircraft;
+  seats: FlightSeatDisplay[];
+  totalSeats: number;
+  availableSeats: number;
+  occupiedSeats: number;
+  boardedSeats: number;
+  waitingSeats: number;
+  deniedSeats: number;
+}
+
+export function getFlightSeatMap(flightId: string): FlightSeatMap | null {
+  const flight = getFlightById(flightId);
+
+  if (!flight) {
+    return null;
+  }
+
+  const aircraftItem = getAircraftById(flight.aircraftId);
+
+  if (!aircraftItem) {
+    return null;
+  }
+
+  /*
+   * Use the aircraft seat records as the visual source.
+   *
+   * We intentionally limit the rendered seats to flight.capacity.
+   * This keeps the operational seat total consistent with the Flight record.
+   */
+  const aircraftSeatRecords = getAircraftSeats(flight.aircraftId).slice(
+    0,
+    flight.capacity,
+  );
+
+  const flightReservations = reservations.filter(
+    (reservation) =>
+      reservation.flightId === flightId && reservation.status !== 'CANCELLED',
+  );
+
+  const flightBoardings = getBoardingByFlightId(flightId);
+
+  const assignments = new Map<
+    string,
+    {
+      passengerId: string | null;
+      passengerName: string | null;
+      ticketNumber: string | null;
+      status: FlightSeatDisplayStatus;
+      boardedAt: string | null;
+    }
+  >();
+
+  /*
+   * First, attach real reservation records to their actual seats.
+   */
+  for (const reservation of flightReservations) {
+    const passenger = getPassengerById(reservation.passengerId);
+
+    const ticket = tickets.find(
+      (item) =>
+        item.flightId === flightId &&
+        item.passengerId === reservation.passengerId &&
+        item.seatId === reservation.seatId,
+    );
+
+    const boardingRecord = flightBoardings.find(
+      (item) =>
+        item.passengerId === reservation.passengerId &&
+        item.ticketId === ticket?.id,
+    );
+
+    let status: FlightSeatDisplayStatus = 'OCCUPIED';
+
+    if (boardingRecord?.status === 'BOARDED') {
+      status = 'BOARDED';
+    }
+
+    if (boardingRecord?.status === 'NOT_BOARDED') {
+      status = 'WAITING';
+    }
+
+    if (boardingRecord?.status === 'DENIED') {
+      status = 'DENIED';
+    }
+
+    assignments.set(reservation.seatId, {
+      passengerId: passenger?.id ?? reservation.passengerId,
+      passengerName:
+        passenger ? `${passenger.firstName} ${passenger.lastName}` : null,
+      ticketNumber: ticket?.ticketNumber ?? null,
+      status,
+      boardedAt: boardingRecord?.boardedAt ?? null,
+    });
+  }
+
+  /*
+   * Also attach boarding records when a boarding record exists
+   * but the reservation is not available in the local mock data.
+   */
+  for (const boardingRecord of flightBoardings) {
+    const ticket = getTicketById(boardingRecord.ticketId);
+
+    if (!ticket || ticket.flightId !== flightId) {
+      continue;
+    }
+
+    if (assignments.has(ticket.seatId)) {
+      continue;
+    }
+
+    const passenger = getPassengerById(boardingRecord.passengerId);
+
+    let status: FlightSeatDisplayStatus = 'OCCUPIED';
+
+    if (boardingRecord.status === 'BOARDED') {
+      status = 'BOARDED';
+    }
+
+    if (boardingRecord.status === 'NOT_BOARDED') {
+      status = 'WAITING';
+    }
+
+    if (boardingRecord.status === 'DENIED') {
+      status = 'DENIED';
+    }
+
+    assignments.set(ticket.seatId, {
+      passengerId: passenger?.id ?? boardingRecord.passengerId,
+      passengerName:
+        passenger ? `${passenger.firstName} ${passenger.lastName}` : null,
+      ticketNumber: ticket.ticketNumber,
+      status,
+      boardedAt: boardingRecord.boardedAt,
+    });
+  }
+
+  /*
+   * The current local dataset contains aggregate seat availability
+   * on the Flight record but not a full passenger reservation for
+   * every occupied seat.
+   *
+   * Therefore:
+   *
+   * occupied target = capacity - seatsAvailable
+   *
+   * We fill the remaining visual seats as generic OCCUPIED seats.
+   * Real passenger seats always keep their actual passenger status.
+   */
+  const normalizedAvailableSeats = Math.min(
+    Math.max(flight.seatsAvailable, 0),
+    flight.capacity,
+  );
+
+  const targetOccupiedSeats = flight.capacity - normalizedAvailableSeats;
+
+  let assignedOccupiedSeats = 0;
+
+  for (const assignment of assignments.values()) {
+    if (
+      assignment.status === 'OCCUPIED' ||
+      assignment.status === 'BOARDED' ||
+      assignment.status === 'WAITING' ||
+      assignment.status === 'DENIED'
+    ) {
+      assignedOccupiedSeats += 1;
+    }
+  }
+
+  let fillerOccupiedSeats = Math.max(
+    0,
+    targetOccupiedSeats - assignedOccupiedSeats,
+  );
+
+  const seats = aircraftSeatRecords.map((seat) => {
+    const existingAssignment = assignments.get(seat.id);
+
+    if (existingAssignment) {
+      return {
+        seat,
+        status: existingAssignment.status,
+        passengerId: existingAssignment.passengerId,
+        passengerName: existingAssignment.passengerName,
+        ticketNumber: existingAssignment.ticketNumber,
+        boardedAt: existingAssignment.boardedAt,
+      };
+    }
+
+    if (fillerOccupiedSeats > 0) {
+      fillerOccupiedSeats -= 1;
+
+      return {
+        seat,
+        status: 'OCCUPIED' as const,
+        passengerId: null,
+        passengerName: null,
+        ticketNumber: null,
+        boardedAt: null,
+      };
+    }
+
+    return {
+      seat,
+      status: 'AVAILABLE' as const,
+      passengerId: null,
+      passengerName: null,
+      ticketNumber: null,
+      boardedAt: null,
+    };
+  });
+
+  const occupiedSeats = seats.filter(
+    (seat) =>
+      seat.status === 'OCCUPIED' ||
+      seat.status === 'BOARDED' ||
+      seat.status === 'WAITING' ||
+      seat.status === 'DENIED',
+  ).length;
+
+  const availableSeats = seats.filter(
+    (seat) => seat.status === 'AVAILABLE',
+  ).length;
+
+  const boardedSeats = seats.filter((seat) => seat.status === 'BOARDED').length;
+
+  const waitingSeats = seats.filter((seat) => seat.status === 'WAITING').length;
+
+  const deniedSeats = seats.filter((seat) => seat.status === 'DENIED').length;
+
+  return {
+    flight,
+    aircraft: aircraftItem,
+    seats,
+    totalSeats: seats.length,
+    availableSeats,
+    occupiedSeats,
+    boardedSeats,
+    waitingSeats,
+    deniedSeats,
+  };
+}
 /* -------------------------------------------------------------------------- */
 /* DEFAULT EXPORT                                                             */
 /* -------------------------------------------------------------------------- */

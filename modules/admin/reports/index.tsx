@@ -22,7 +22,7 @@ export function Reports() {
   const { period, setPeriod, data } = useReports();
 
   return (
-    <div className='p-4 sm:p-6 lg:p-8'>
+    <div>
       <div className='mx-auto max-w-[1600px]'>
         <ReportHeader period={period} onPeriodChange={setPeriod} />
 
