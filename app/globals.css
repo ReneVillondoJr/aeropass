@@ -236,6 +236,62 @@
     animation: none;
   }
 }
+.route-grid-effect {
+  background-image:
+    linear-gradient(
+      to right,
+      color-mix(in oklch, var(--border) 35%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklch, var(--border) 35%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 36px 36px;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black 15%,
+    black 85%,
+    transparent
+  );
+}
+
+.route-map-line {
+  position: absolute;
+  height: 1px;
+  background: var(--border);
+  opacity: 0.5;
+}
+
+.route-map-line-one {
+  left: -10%;
+  top: 28%;
+  width: 120%;
+  transform: rotate(9deg);
+}
+
+.route-map-line-two {
+  left: -10%;
+  top: 68%;
+  width: 120%;
+  transform: rotate(-7deg);
+}
+
+.route-map-line-three {
+  left: 48%;
+  top: -10%;
+  width: 1px;
+  height: 120%;
+  transform: rotate(14deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .route-map-line {
+    transform: none;
+  }
+}
 
 @layer base {
   * {
