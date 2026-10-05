@@ -1,7 +1,5 @@
-import { RotateCcw, Search } from 'lucide-react';
-
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { AdminFilterBar } from '@/components/filter-bar';
+import { AdminFilterSelect } from '@/components/filter-select';
 
 import type {
   SeatMapCabinFilter,
@@ -10,11 +8,8 @@ import type {
 
 interface SeatMapFiltersProps {
   search: string;
-
   status: SeatMapStatusFilter;
-
   cabin: SeatMapCabinFilter;
-
   resultCount: number;
 
   onSearchChange: (value: string) => void;
@@ -25,6 +20,44 @@ interface SeatMapFiltersProps {
 
   onReset: () => void;
 }
+
+const statusOptions = [
+  {
+    label: 'All statuses',
+    value: 'ALL',
+  },
+  {
+    label: 'Active',
+    value: 'ACTIVE',
+  },
+  {
+    label: 'Maintenance',
+    value: 'MAINTENANCE',
+  },
+  {
+    label: 'Inactive',
+    value: 'INACTIVE',
+  },
+];
+
+const cabinOptions = [
+  {
+    label: 'All cabins',
+    value: 'ALL',
+  },
+  {
+    label: 'Business',
+    value: 'BUSINESS',
+  },
+  {
+    label: 'Premium Economy',
+    value: 'PREMIUM_ECONOMY',
+  },
+  {
+    label: 'Economy',
+    value: 'ECONOMY',
+  },
+];
 
 export function SeatMapFilters({
   search,
@@ -39,100 +72,34 @@ export function SeatMapFilters({
   const hasFilters = search.length > 0 || status !== 'ALL' || cabin !== 'ALL';
 
   return (
-    <section className='rounded-2xl border border-border/70 bg-background p-4 shadow-sm sm:p-5'>
-      <div className='flex flex-col gap-4 xl:flex-row xl:items-end'>
-        <div className='min-w-0 flex-1'>
-          <label
-            htmlFor='seat-map-search'
-            className='mb-2 block text-xs font-medium text-foreground'
-          >
-            Search seat maps
-          </label>
+    <AdminFilterBar
+      search={search}
+      searchPlaceholder='Search aircraft, model, registration...'
+      resultCount={resultCount}
+      resultLabel='seat map'
+      resultLabelPlural='seat maps'
+      hasFilters={hasFilters}
+      onSearchChange={onSearchChange}
+      onReset={onReset}
+      helperText='Select a seat map to inspect its cabin configuration.'
+    >
+      <AdminFilterSelect
+        id='seat-map-status'
+        label='Aircraft status'
+        value={status}
+        options={statusOptions}
+        onChange={(value) => onStatusChange(value as SeatMapStatusFilter)}
+        className='w-full sm:w-[165px]'
+      />
 
-          <div className='relative'>
-            <Search className='pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground' />
-
-            <Input
-              id='seat-map-search'
-              value={search}
-              onChange={(event) => onSearchChange(event.target.value)}
-              placeholder='Search aircraft, model, registration...'
-              className='h-10 pl-9'
-            />
-          </div>
-        </div>
-
-        <div className='grid gap-4 sm:grid-cols-2 xl:w-[380px]'>
-          <div>
-            <label
-              htmlFor='seat-map-status'
-              className='mb-2 block text-xs font-medium text-foreground'
-            >
-              Aircraft status
-            </label>
-
-            <select
-              id='seat-map-status'
-              value={status}
-              onChange={(event) =>
-                onStatusChange(event.target.value as SeatMapStatusFilter)
-              }
-              className='h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/20'
-            >
-              <option value='ALL'>All statuses</option>
-
-              <option value='ACTIVE'>Active</option>
-
-              <option value='MAINTENANCE'>Maintenance</option>
-
-              <option value='INACTIVE'>Inactive</option>
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor='seat-map-cabin'
-              className='mb-2 block text-xs font-medium text-foreground'
-            >
-              Cabin class
-            </label>
-
-            <select
-              id='seat-map-cabin'
-              value={cabin}
-              onChange={(event) =>
-                onCabinChange(event.target.value as SeatMapCabinFilter)
-              }
-              className='h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/20'
-            >
-              <option value='ALL'>All cabins</option>
-
-              <option value='BUSINESS'>Business</option>
-
-              <option value='PREMIUM_ECONOMY'>Premium Economy</option>
-
-              <option value='ECONOMY'>Economy</option>
-            </select>
-          </div>
-        </div>
-
-        <div className='flex items-center justify-between gap-3'>
-          <span className='text-xs text-muted-foreground'>
-            {resultCount} {resultCount === 1 ? 'seat map' : 'seat maps'}
-          </span>
-
-          <Button
-            type='button'
-            variant='outline'
-            onClick={onReset}
-            disabled={!hasFilters}
-            className='gap-2'
-          >
-            <RotateCcw className='size-3.5' />
-            Reset
-          </Button>
-        </div>
-      </div>
-    </section>
+      <AdminFilterSelect
+        id='seat-map-cabin'
+        label='Cabin class'
+        value={cabin}
+        options={cabinOptions}
+        onChange={(value) => onCabinChange(value as SeatMapCabinFilter)}
+        className='w-full sm:w-[185px]'
+      />
+    </AdminFilterBar>
   );
 }
