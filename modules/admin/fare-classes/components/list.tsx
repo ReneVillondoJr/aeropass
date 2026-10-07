@@ -18,8 +18,8 @@ export function FareClassList({
   onSelect,
 }: FareClassListProps) {
   return (
-    <section className='min-w-0 rounded-2xl border border-border/70 bg-background p-4 shadow-sm sm:p-5'>
-      <div className='mb-4 flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
+    <section className='flex min-w-0 max-h-185 flex-col rounded-2xl border border-border/70 bg-background p-4 shadow-sm sm:p-5'>
+      <div className='mb-4 flex shrink-0 min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
         <div className='min-w-0'>
           <div className='flex items-center gap-2'>
             <CircleDollarSign className='size-4 text-[#5BA9D6]' />
@@ -39,7 +39,7 @@ export function FareClassList({
       </div>
 
       {fareClasses.length > 0 ?
-        <div className='grid min-w-0 gap-3'>
+        <div className='grid min-h-0 min-w-0 flex-1 content-start gap-3 overflow-y-auto overscroll-contain'>
           {fareClasses.map((item) => (
             <FareClassRow
               key={item.fareClass.id}

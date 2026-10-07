@@ -43,9 +43,9 @@ export function FareClassDetail({ fareClass: item }: FareClassDetailProps) {
   const cabin = cabinClassMeta[fare.cabinClass];
 
   return (
-    <aside className='min-w-0 space-y-4'>
-      {/* Hero */}
-      <section className='overflow-hidden rounded-2xl border border-[#102A43] bg-[#102A43] text-white shadow-sm'>
+    <aside className='flex min-w-0 max-h-185 flex-col gap-4'>
+      {/* Hero (fixed header) */}
+      <section className='shrink-0 overflow-hidden rounded-2xl border border-[#102A43] bg-[#102A43] text-white shadow-sm'>
         <div className='relative p-5'>
           <div className='absolute -right-12 -top-12 size-40 rounded-full bg-[#5BA9D6]/10 blur-2xl' />
 
@@ -100,112 +100,118 @@ export function FareClassDetail({ fareClass: item }: FareClassDetailProps) {
         </div>
       </section>
 
-      {/* Rules */}
-      <section className='rounded-2xl border border-border/70 bg-background p-5 shadow-sm'>
-        <SectionHeading icon={<Tag className='size-4' />} title='Fare rules' />
-
-        <div className='mt-4 grid gap-3 sm:grid-cols-2'>
-          <InfoCard
-            icon={<Luggage className='size-3.5' />}
-            label='Baggage allowance'
-            value={`${fare.baggageAllowanceKg} kg`}
+      {/* Scrollable content */}
+      <div className='min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain'>
+        {/* Rules */}
+        <section className='rounded-2xl border border-border/70 bg-background p-5 shadow-sm'>
+          <SectionHeading
+            icon={<Tag className='size-4' />}
+            title='Fare rules'
           />
 
-          <InfoCard
-            icon={<Banknote className='size-3.5' />}
-            label='Change fee'
-            value={formatPhp(fare.changeFee)}
+          <div className='mt-4 grid gap-3 sm:grid-cols-2'>
+            <InfoCard
+              icon={<Luggage className='size-3.5' />}
+              label='Baggage allowance'
+              value={`${fare.baggageAllowanceKg} kg`}
+            />
+
+            <InfoCard
+              icon={<Banknote className='size-3.5' />}
+              label='Change fee'
+              value={formatPhp(fare.changeFee)}
+            />
+
+            <RuleCard
+              icon={<RefreshCcw className='size-3.5' />}
+              label='Refundable'
+              active={fare.refundable}
+            />
+
+            <RuleCard
+              icon={<ArrowRightLeft className='size-3.5' />}
+              label='Changeable'
+              active={fare.changeable}
+            />
+          </div>
+        </section>
+
+        {/* Pricing */}
+        <FarePricingTable fares={item.flightFares} />
+
+        {/* Fare inventory */}
+        <section className='rounded-2xl border border-border/70 bg-background p-5 shadow-sm'>
+          <SectionHeading
+            icon={<WalletCards className='size-4' />}
+            title='Fare inventory'
           />
 
-          <RuleCard
-            icon={<RefreshCcw className='size-3.5' />}
-            label='Refundable'
-            active={fare.refundable}
-          />
+          <div className='mt-4 rounded-2xl bg-[#EEF7FB] p-4'>
+            <div className='flex items-start justify-between gap-4'>
+              <div>
+                <p className='text-xs font-medium text-muted-foreground'>
+                  Seats available across published records
+                </p>
 
-          <RuleCard
-            icon={<ArrowRightLeft className='size-3.5' />}
-            label='Changeable'
-            active={fare.changeable}
-          />
-        </div>
-      </section>
+                <p className='mt-2 text-2xl font-semibold tracking-tight tabular-nums text-[#102A43]'>
+                  {item.totalSeatsAvailable.toLocaleString()}
+                </p>
+              </div>
 
-      {/* Pricing */}
-      <FarePricingTable fares={item.flightFares} />
-
-      {/* Fare inventory */}
-      <section className='rounded-2xl border border-border/70 bg-background p-5 shadow-sm'>
-        <SectionHeading
-          icon={<WalletCards className='size-4' />}
-          title='Fare inventory'
-        />
-
-        <div className='mt-4 rounded-2xl bg-[#EEF7FB] p-4'>
-          <div className='flex items-start justify-between gap-4'>
-            <div>
-              <p className='text-xs font-medium text-muted-foreground'>
-                Seats available across published records
-              </p>
-
-              <p className='mt-2 text-2xl font-semibold tracking-tight tabular-nums text-[#102A43]'>
-                {item.totalSeatsAvailable.toLocaleString()}
-              </p>
+              <div className='flex size-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#102A43] shadow-sm'>
+                <WalletCards className='size-4' />
+              </div>
             </div>
 
-            <div className='flex size-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#102A43] shadow-sm'>
-              <WalletCards className='size-4' />
+            <div className='mt-4 border-t border-[#DCE8EF] pt-3'>
+              <p className='text-xs leading-5 text-muted-foreground'>
+                This is the sum of seat availability reported by the existing
+                flight-fare records for this fare class.
+              </p>
             </div>
           </div>
+        </section>
 
-          <div className='mt-4 border-t border-[#DCE8EF] pt-3'>
-            <p className='text-xs leading-5 text-muted-foreground'>
-              This is the sum of seat availability reported by the existing
-              flight-fare records for this fare class.
-            </p>
+        {/* Policy summary */}
+        <section className='rounded-2xl border border-border/70 bg-background p-5 shadow-sm'>
+          <SectionHeading
+            icon={<Info className='size-4' />}
+            title='Policy summary'
+          />
+
+          <div className='mt-4 space-y-3'>
+            <PolicyRow
+              icon={<Luggage className='size-3.5' />}
+              label='Cabin class'
+              value={cabin.label}
+            />
+
+            <PolicyRow
+              icon={<ShieldCheck className='size-3.5' />}
+              label='Refund policy'
+              value={fare.refundable ? 'Refundable' : 'Non-refundable'}
+            />
+
+            <PolicyRow
+              icon={<ArrowRightLeft className='size-3.5' />}
+              label='Change policy'
+              value={
+                fare.changeable ?
+                  fare.changeFee === 0 ?
+                    'Changeable · No fee'
+                  : `Changeable · ${formatPhp(fare.changeFee)}`
+                : 'Changes not permitted'
+              }
+            />
+
+            <PolicyRow
+              icon={<CircleDollarSign className='size-3.5' />}
+              label='Taxes included'
+              value='Per flight-fare record'
+            />
           </div>
-        </div>
-      </section>
-
-      {/* Policy summary */}
-      <section className='rounded-2xl border border-border/70 bg-background p-5 shadow-sm'>
-        <SectionHeading
-          icon={<Info className='size-4' />}
-          title='Policy summary'
-        />
-
-        <div className='mt-4 space-y-3'>
-          <PolicyRow
-            icon={<Luggage className='size-3.5' />}
-            label='Cabin class'
-            value={cabin.label}
-          />
-
-          <PolicyRow
-            icon={<ShieldCheck className='size-3.5' />}
-            label='Refund policy'
-            value={fare.refundable ? 'Refundable' : 'Non-refundable'}
-          />
-
-          <PolicyRow
-            icon={<ArrowRightLeft className='size-3.5' />}
-            label='Change policy'
-            value={
-              fare.changeable ?
-                fare.changeFee === 0 ?
-                  'Changeable · No fee'
-                : `Changeable · ${formatPhp(fare.changeFee)}`
-              : 'Changes not permitted'
-            }
-          />
-
-          <PolicyRow
-            icon={<CircleDollarSign className='size-3.5' />}
-            label='Taxes included'
-            value='Per flight-fare record'
-          />
-        </div>
-      </section>
+        </section>
+      </div>
     </aside>
   );
 }

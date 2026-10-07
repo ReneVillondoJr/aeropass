@@ -40,7 +40,7 @@ export function BookingList({
 
       {/* Scrollable booking list */}
       {bookings.length > 0 ?
-        <div className='max-h-630 overflow-y-auto overscroll-contain pr-1'>
+        <div className='max-h-160 overflow-y-auto overscroll-contain pr-1'>
           <div className='grid min-w-0 gap-3'>
             {bookings.map((item) => (
               <BookingRow

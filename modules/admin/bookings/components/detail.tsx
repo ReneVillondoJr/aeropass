@@ -61,9 +61,9 @@ export function BookingDetail({ booking: item }: BookingDetailProps) {
     item.flight ? getAircraftSeats(item.flight.flight.aircraftId) : [];
 
   return (
-    <aside className='min-w-0 space-y-4'>
-      {/* Identity */}
-      <section className='overflow-hidden rounded-2xl border border-[#102A43] bg-[#102A43] text-white shadow-sm'>
+    <aside className='flex min-w-0 max-h-185 flex-col gap-4'>
+      {/* Identity (fixed header) */}
+      <section className='shrink-0 overflow-hidden rounded-2xl border border-[#102A43] bg-[#102A43] text-white shadow-sm'>
         <div className='relative p-5'>
           <div className='absolute -right-12 -top-12 size-40 rounded-full bg-[#5BA9D6]/10 blur-2xl' />
 
@@ -139,408 +139,419 @@ export function BookingDetail({ booking: item }: BookingDetailProps) {
         </div>
       </section>
 
-      {/* Customer */}
-      <section className='rounded-2xl border border-border/70 bg-background p-5 shadow-sm'>
-        <SectionHeading icon={<Users className='size-4' />} title='Customer' />
-
-        <div className='mt-4 space-y-3'>
-          <InfoItem
-            icon={<Users className='size-3.5' />}
-            label='Account'
-            value={item.customerName}
-          />
-
-          <InfoItem
-            icon={<FileText className='size-3.5' />}
-            label='Email'
-            value={item.customerEmail}
-          />
-
-          <InfoItem
-            icon={<CreditCard className='size-3.5' />}
-            label='Phone'
-            value={item.customerPhone}
-          />
-        </div>
-      </section>
-
-      {/* Travel */}
-      <section className='rounded-2xl border border-border/70 bg-background p-5 shadow-sm'>
-        <SectionHeading
-          icon={<Plane className='size-4' />}
-          title='Travel details'
-        />
-
-        {item.flight ?
-          <div className='mt-4 space-y-3'>
-            <div className='rounded-xl border border-border/60 bg-[#EEF7FB] p-4'>
-              <div className='flex items-center justify-between gap-3'>
-                <div>
-                  <p className='text-[10px] uppercase tracking-[0.08em] text-muted-foreground'>
-                    Flight
-                  </p>
-
-                  <p className='mt-1 text-lg font-semibold tabular-nums text-[#102A43]'>
-                    {item.flight.flightNumber}
-                  </p>
-                </div>
-
-                <BadgeCheck className='size-5 text-[#102A43]' />
-              </div>
-
-              <div className='mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-2'>
-                <div className='min-w-0'>
-                  <p className='text-base font-semibold'>
-                    {item.flight.originCode}
-                  </p>
-
-                  <p className='truncate text-xs text-muted-foreground'>
-                    {item.flight.originCity}
-                  </p>
-                </div>
-
-                <Plane className='size-4 text-[#5BA9D6]' />
-
-                <div className='min-w-0 text-right'>
-                  <p className='text-base font-semibold'>
-                    {item.flight.destinationCode}
-                  </p>
-
-                  <p className='truncate text-xs text-muted-foreground'>
-                    {item.flight.destinationCity}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className='grid gap-2 sm:grid-cols-2'>
-              <InfoItem
-                icon={<CalendarDays className='size-3.5' />}
-                label='Departure date'
-                value={formatDate(item.flight.flight.departureDate)}
-              />
-
-              <InfoItem
-                icon={<MapPin className='size-3.5' />}
-                label='Gate'
-                value={item.flight.flight.gate}
-              />
-
-              <InfoItem
-                icon={<CalendarDays className='size-3.5' />}
-                label='Departure'
-                value={`${item.flight.flight.departureTime}`}
-              />
-
-              <InfoItem
-                icon={<MapPin className='size-3.5' />}
-                label='Terminal'
-                value={item.flight.flight.terminal}
-              />
-            </div>
-          </div>
-        : <p className='mt-4 text-xs text-muted-foreground'>
-            Flight details unavailable.
-          </p>
-        }
-      </section>
-
-      {/* Passengers */}
-      <section className='rounded-2xl border border-border/70 bg-background p-5 shadow-sm'>
-        <SectionHeading
-          icon={<Users className='size-4' />}
-          title='Passengers'
-        />
-
-        <div className='mt-4 space-y-3'>
-          {item.passengers.length > 0 ?
-            item.passengers.map((passenger) => {
-              const name = [
-                passenger.firstName,
-                passenger.middleName,
-                passenger.lastName,
-              ]
-                .filter(Boolean)
-                .join(' ');
-
-              return (
-                <div
-                  key={passenger.id}
-                  className='min-w-0 rounded-xl border border-border/60 bg-muted/10 p-3.5'
-                >
-                  <div className='flex min-w-0 items-start justify-between gap-3'>
-                    <div className='min-w-0'>
-                      <p className='truncate text-sm font-semibold'>{name}</p>
-
-                      <p className='mt-1 truncate text-xs text-muted-foreground'>
-                        {passenger.email}
-                      </p>
-                    </div>
-
-                    <span className='shrink-0 rounded-full bg-background px-2 py-1 text-[9px] font-semibold'>
-                      {passenger.nationality}
-                    </span>
-                  </div>
-
-                  <div className='mt-3 grid gap-2 sm:grid-cols-2'>
-                    <InfoItem
-                      icon={<FileText className='size-3.5' />}
-                      label='Gender'
-                      value={passenger.gender}
-                    />
-
-                    <InfoItem
-                      icon={<CalendarDays className='size-3.5' />}
-                      label='Date of birth'
-                      value={formatDate(passenger.dateOfBirth)}
-                    />
-                  </div>
-                </div>
-              );
-            })
-          : <p className='py-4 text-center text-xs text-muted-foreground'>
-              No passengers recorded.
-            </p>
-          }
-        </div>
-      </section>
-
-      {/* Reservations */}
-      <section className='rounded-2xl border border-border/70 bg-background p-5 shadow-sm'>
-        <SectionHeading
-          icon={<Receipt className='size-4' />}
-          title='Reservations'
-        />
-
-        <div className='mt-4 space-y-3'>
-          {item.reservations.length > 0 ?
-            item.reservations.map((reservation) => {
-              const fareClass = getFareClassById(reservation.fareClassId);
-
-              const seat = reservationSeatRecords.find(
-                (item) => item.id === reservation.seatId,
-              );
-
-              return (
-                <div
-                  key={reservation.id}
-                  className='min-w-0 rounded-xl border border-border/60 bg-muted/10 p-3.5'
-                >
-                  <div className='flex min-w-0 items-start justify-between gap-3'>
-                    <div className='min-w-0'>
-                      <p className='text-sm font-semibold'>
-                        {seat?.seatNumber ?? reservation.seatId}
-                      </p>
-
-                      <p className='mt-1 truncate text-xs text-muted-foreground'>
-                        {fareClass?.name ?? reservation.fareClassId}
-                      </p>
-                    </div>
-
-                    <span className='shrink-0 rounded-full bg-background px-2 py-1 text-[9px] font-semibold'>
-                      {reservation.status}
-                    </span>
-                  </div>
-
-                  <div className='mt-3 flex items-center justify-between gap-3 border-t border-border/50 pt-3'>
-                    <span className='text-xs text-muted-foreground'>Fare</span>
-
-                    <span className='text-sm font-semibold tabular-nums'>
-                      {formatPhp(reservation.price)}
-                    </span>
-                  </div>
-                </div>
-              );
-            })
-          : <p className='py-4 text-center text-xs text-muted-foreground'>
-              No reservations recorded.
-            </p>
-          }
-        </div>
-      </section>
-
-      {/* Payment */}
-      <section className='rounded-2xl border border-border/70 bg-background p-5 shadow-sm'>
-        <SectionHeading
-          icon={<WalletCards className='size-4' />}
-          title='Payment'
-        />
-
-        <div className='mt-4 space-y-3'>
-          <div className='rounded-2xl bg-[#EEF7FB] p-4'>
-            <div className='flex items-start justify-between gap-4'>
-              <div>
-                <p className='text-[10px] uppercase tracking-[0.08em] text-muted-foreground'>
-                  Booking total
-                </p>
-
-                <p className='mt-2 text-2xl font-semibold tracking-tight tabular-nums text-[#102A43]'>
-                  {formatPhp(booking.total)}
-                </p>
-              </div>
-
-              <CircleDollarSign className='size-5 text-[#102A43]' />
-            </div>
-
-            <div className='mt-4 grid gap-2 sm:grid-cols-2'>
-              <InfoItem
-                icon={<CreditCard className='size-3.5' />}
-                label='Payment method'
-                value={paymentMethodMeta[booking.paymentMethod].label}
-              />
-
-              <InfoItem
-                icon={<CheckCircle2 className='size-3.5' />}
-                label='Payment status'
-                value={paymentStatus.label}
-              />
-            </div>
-          </div>
-
-          <div className='grid gap-2'>
-            <AmountRow label='Subtotal' value={booking.subtotal} />
-
-            <AmountRow label='Taxes' value={booking.taxes} />
-
-            <AmountRow label='Fees' value={booking.fees} />
-
-            <AmountRow
-              icon={<Luggage className='size-3.5' />}
-              label='Baggage'
-              value={booking.baggageFees}
-            />
-
-            <AmountRow label='Seat fees' value={booking.seatFees} />
-
-            <AmountRow label='Discount' value={-booking.discount} />
-
-            <div className='mt-1 flex items-center justify-between gap-3 border-t border-border pt-3'>
-              <span className='text-sm font-semibold'>Total</span>
-
-              <span className='text-base font-semibold tabular-nums'>
-                {formatPhp(booking.total)}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {item.payment ?
-          <div className='mt-4 rounded-xl border border-border/60 bg-muted/10 p-3.5'>
-            <p className='text-[10px] font-medium uppercase tracking-[0.07em] text-muted-foreground'>
-              Provider reference
-            </p>
-
-            <p className='mt-1 break-all text-xs font-semibold'>
-              {item.payment.providerReference}
-            </p>
-
-            {item.payment.paidAt ?
-              <p className='mt-2 text-[10px] text-muted-foreground'>
-                Paid {formatDateTime(item.payment.paidAt)}
-              </p>
-            : null}
-          </div>
-        : null}
-      </section>
-
-      {/* Tickets */}
-      <section className='rounded-2xl border border-border/70 bg-background p-5 shadow-sm'>
-        <SectionHeading icon={<Ticket className='size-4' />} title='Tickets' />
-
-        <div className='mt-4 space-y-3'>
-          {item.tickets.length > 0 ?
-            item.tickets.map((ticket) => (
-              <div
-                key={ticket.id}
-                className='min-w-0 rounded-xl border border-border/60 bg-muted/10 p-3.5'
-              >
-                <div className='flex min-w-0 items-start justify-between gap-3'>
-                  <div className='min-w-0'>
-                    <p className='truncate text-sm font-semibold tabular-nums'>
-                      {ticket.ticketNumber}
-                    </p>
-
-                    <p className='mt-1 truncate text-xs text-muted-foreground'>
-                      Seat{' '}
-                      {getSeatNumber(reservationSeatRecords, ticket.seatId)}
-                    </p>
-                  </div>
-
-                  <span className='shrink-0 rounded-full bg-emerald-50 px-2 py-1 text-[9px] font-semibold text-emerald-700'>
-                    {ticket.status}
-                  </span>
-                </div>
-
-                <p className='mt-3 text-[10px] text-muted-foreground'>
-                  Issued {formatDateTime(ticket.issuedAt)}
-                </p>
-              </div>
-            ))
-          : <p className='py-4 text-center text-xs text-muted-foreground'>
-              No tickets issued.
-            </p>
-          }
-        </div>
-      </section>
-
-      {/* Refund */}
-      {item.refund ?
+      {/* Scrollable content */}
+      <div className='min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain'>
+        {/* Customer */}
         <section className='rounded-2xl border border-border/70 bg-background p-5 shadow-sm'>
           <SectionHeading
-            icon={<Banknote className='size-4' />}
-            title='Refund'
+            icon={<Users className='size-4' />}
+            title='Customer'
           />
 
           <div className='mt-4 space-y-3'>
             <InfoItem
-              icon={<CircleDollarSign className='size-3.5' />}
-              label='Amount'
-              value={formatPhp(item.refund.amount)}
-            />
-
-            <InfoItem
-              icon={<CheckCircle2 className='size-3.5' />}
-              label='Status'
-              value={item.refund.status}
+              icon={<Users className='size-3.5' />}
+              label='Account'
+              value={item.customerName}
             />
 
             <InfoItem
               icon={<FileText className='size-3.5' />}
-              label='Reason'
-              value={item.refund.reason}
+              label='Email'
+              value={item.customerEmail}
+            />
+
+            <InfoItem
+              icon={<CreditCard className='size-3.5' />}
+              label='Phone'
+              value={item.customerPhone}
             />
           </div>
         </section>
-      : null}
 
-      {/* Booking timestamps */}
-      <section className='rounded-2xl border border-border/70 bg-background p-5 shadow-sm'>
-        <SectionHeading
-          icon={<CalendarDays className='size-4' />}
-          title='Booking record'
-        />
-
-        <div className='mt-4 space-y-3'>
-          <InfoItem
-            icon={<CalendarDays className='size-3.5' />}
-            label='Created'
-            value={formatDateTime(booking.createdAt)}
+        {/* Travel */}
+        <section className='rounded-2xl border border-border/70 bg-background p-5 shadow-sm'>
+          <SectionHeading
+            icon={<Plane className='size-4' />}
+            title='Travel details'
           />
 
-          {booking.expiresAt ?
+          {item.flight ?
+            <div className='mt-4 space-y-3'>
+              <div className='rounded-xl border border-border/60 bg-[#EEF7FB] p-4'>
+                <div className='flex items-center justify-between gap-3'>
+                  <div>
+                    <p className='text-[10px] uppercase tracking-[0.08em] text-muted-foreground'>
+                      Flight
+                    </p>
+
+                    <p className='mt-1 text-lg font-semibold tabular-nums text-[#102A43]'>
+                      {item.flight.flightNumber}
+                    </p>
+                  </div>
+
+                  <BadgeCheck className='size-5 text-[#102A43]' />
+                </div>
+
+                <div className='mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-2'>
+                  <div className='min-w-0'>
+                    <p className='text-base font-semibold'>
+                      {item.flight.originCode}
+                    </p>
+
+                    <p className='truncate text-xs text-muted-foreground'>
+                      {item.flight.originCity}
+                    </p>
+                  </div>
+
+                  <Plane className='size-4 text-[#5BA9D6]' />
+
+                  <div className='min-w-0 text-right'>
+                    <p className='text-base font-semibold'>
+                      {item.flight.destinationCode}
+                    </p>
+
+                    <p className='truncate text-xs text-muted-foreground'>
+                      {item.flight.destinationCity}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className='grid gap-2 sm:grid-cols-2'>
+                <InfoItem
+                  icon={<CalendarDays className='size-3.5' />}
+                  label='Departure date'
+                  value={formatDate(item.flight.flight.departureDate)}
+                />
+
+                <InfoItem
+                  icon={<MapPin className='size-3.5' />}
+                  label='Gate'
+                  value={item.flight.flight.gate}
+                />
+
+                <InfoItem
+                  icon={<CalendarDays className='size-3.5' />}
+                  label='Departure'
+                  value={`${item.flight.flight.departureTime}`}
+                />
+
+                <InfoItem
+                  icon={<MapPin className='size-3.5' />}
+                  label='Terminal'
+                  value={item.flight.flight.terminal}
+                />
+              </div>
+            </div>
+          : <p className='mt-4 text-xs text-muted-foreground'>
+              Flight details unavailable.
+            </p>
+          }
+        </section>
+
+        {/* Passengers */}
+        <section className='rounded-2xl border border-border/70 bg-background p-5 shadow-sm'>
+          <SectionHeading
+            icon={<Users className='size-4' />}
+            title='Passengers'
+          />
+
+          <div className='mt-4 space-y-3'>
+            {item.passengers.length > 0 ?
+              item.passengers.map((passenger) => {
+                const name = [
+                  passenger.firstName,
+                  passenger.middleName,
+                  passenger.lastName,
+                ]
+                  .filter(Boolean)
+                  .join(' ');
+
+                return (
+                  <div
+                    key={passenger.id}
+                    className='min-w-0 rounded-xl border border-border/60 bg-muted/10 p-3.5'
+                  >
+                    <div className='flex min-w-0 items-start justify-between gap-3'>
+                      <div className='min-w-0'>
+                        <p className='truncate text-sm font-semibold'>{name}</p>
+
+                        <p className='mt-1 truncate text-xs text-muted-foreground'>
+                          {passenger.email}
+                        </p>
+                      </div>
+
+                      <span className='shrink-0 rounded-full bg-background px-2 py-1 text-[9px] font-semibold'>
+                        {passenger.nationality}
+                      </span>
+                    </div>
+
+                    <div className='mt-3 grid gap-2 sm:grid-cols-2'>
+                      <InfoItem
+                        icon={<FileText className='size-3.5' />}
+                        label='Gender'
+                        value={passenger.gender}
+                      />
+
+                      <InfoItem
+                        icon={<CalendarDays className='size-3.5' />}
+                        label='Date of birth'
+                        value={formatDate(passenger.dateOfBirth)}
+                      />
+                    </div>
+                  </div>
+                );
+              })
+            : <p className='py-4 text-center text-xs text-muted-foreground'>
+                No passengers recorded.
+              </p>
+            }
+          </div>
+        </section>
+
+        {/* Reservations */}
+        <section className='rounded-2xl border border-border/70 bg-background p-5 shadow-sm'>
+          <SectionHeading
+            icon={<Receipt className='size-4' />}
+            title='Reservations'
+          />
+
+          <div className='mt-4 space-y-3'>
+            {item.reservations.length > 0 ?
+              item.reservations.map((reservation) => {
+                const fareClass = getFareClassById(reservation.fareClassId);
+
+                const seat = reservationSeatRecords.find(
+                  (item) => item.id === reservation.seatId,
+                );
+
+                return (
+                  <div
+                    key={reservation.id}
+                    className='min-w-0 rounded-xl border border-border/60 bg-muted/10 p-3.5'
+                  >
+                    <div className='flex min-w-0 items-start justify-between gap-3'>
+                      <div className='min-w-0'>
+                        <p className='text-sm font-semibold'>
+                          {seat?.seatNumber ?? reservation.seatId}
+                        </p>
+
+                        <p className='mt-1 truncate text-xs text-muted-foreground'>
+                          {fareClass?.name ?? reservation.fareClassId}
+                        </p>
+                      </div>
+
+                      <span className='shrink-0 rounded-full bg-background px-2 py-1 text-[9px] font-semibold'>
+                        {reservation.status}
+                      </span>
+                    </div>
+
+                    <div className='mt-3 flex items-center justify-between gap-3 border-t border-border/50 pt-3'>
+                      <span className='text-xs text-muted-foreground'>
+                        Fare
+                      </span>
+
+                      <span className='text-sm font-semibold tabular-nums'>
+                        {formatPhp(reservation.price)}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })
+            : <p className='py-4 text-center text-xs text-muted-foreground'>
+                No reservations recorded.
+              </p>
+            }
+          </div>
+        </section>
+
+        {/* Payment */}
+        <section className='rounded-2xl border border-border/70 bg-background p-5 shadow-sm'>
+          <SectionHeading
+            icon={<WalletCards className='size-4' />}
+            title='Payment'
+          />
+
+          <div className='mt-4 space-y-3'>
+            <div className='rounded-2xl bg-[#EEF7FB] p-4'>
+              <div className='flex items-start justify-between gap-4'>
+                <div>
+                  <p className='text-[10px] uppercase tracking-[0.08em] text-muted-foreground'>
+                    Booking total
+                  </p>
+
+                  <p className='mt-2 text-2xl font-semibold tracking-tight tabular-nums text-[#102A43]'>
+                    {formatPhp(booking.total)}
+                  </p>
+                </div>
+
+                <CircleDollarSign className='size-5 text-[#102A43]' />
+              </div>
+
+              <div className='mt-4 grid gap-2 sm:grid-cols-2'>
+                <InfoItem
+                  icon={<CreditCard className='size-3.5' />}
+                  label='Payment method'
+                  value={paymentMethodMeta[booking.paymentMethod].label}
+                />
+
+                <InfoItem
+                  icon={<CheckCircle2 className='size-3.5' />}
+                  label='Payment status'
+                  value={paymentStatus.label}
+                />
+              </div>
+            </div>
+
+            <div className='grid gap-2'>
+              <AmountRow label='Subtotal' value={booking.subtotal} />
+
+              <AmountRow label='Taxes' value={booking.taxes} />
+
+              <AmountRow label='Fees' value={booking.fees} />
+
+              <AmountRow
+                icon={<Luggage className='size-3.5' />}
+                label='Baggage'
+                value={booking.baggageFees}
+              />
+
+              <AmountRow label='Seat fees' value={booking.seatFees} />
+
+              <AmountRow label='Discount' value={-booking.discount} />
+
+              <div className='mt-1 flex items-center justify-between gap-3 border-t border-border pt-3'>
+                <span className='text-sm font-semibold'>Total</span>
+
+                <span className='text-base font-semibold tabular-nums'>
+                  {formatPhp(booking.total)}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {item.payment ?
+            <div className='mt-4 rounded-xl border border-border/60 bg-muted/10 p-3.5'>
+              <p className='text-[10px] font-medium uppercase tracking-[0.07em] text-muted-foreground'>
+                Provider reference
+              </p>
+
+              <p className='mt-1 break-all text-xs font-semibold'>
+                {item.payment.providerReference}
+              </p>
+
+              {item.payment.paidAt ?
+                <p className='mt-2 text-[10px] text-muted-foreground'>
+                  Paid {formatDateTime(item.payment.paidAt)}
+                </p>
+              : null}
+            </div>
+          : null}
+        </section>
+
+        {/* Tickets */}
+        <section className='rounded-2xl border border-border/70 bg-background p-5 shadow-sm'>
+          <SectionHeading
+            icon={<Ticket className='size-4' />}
+            title='Tickets'
+          />
+
+          <div className='mt-4 space-y-3'>
+            {item.tickets.length > 0 ?
+              item.tickets.map((ticket) => (
+                <div
+                  key={ticket.id}
+                  className='min-w-0 rounded-xl border border-border/60 bg-muted/10 p-3.5'
+                >
+                  <div className='flex min-w-0 items-start justify-between gap-3'>
+                    <div className='min-w-0'>
+                      <p className='truncate text-sm font-semibold tabular-nums'>
+                        {ticket.ticketNumber}
+                      </p>
+
+                      <p className='mt-1 truncate text-xs text-muted-foreground'>
+                        Seat{' '}
+                        {getSeatNumber(reservationSeatRecords, ticket.seatId)}
+                      </p>
+                    </div>
+
+                    <span className='shrink-0 rounded-full bg-emerald-50 px-2 py-1 text-[9px] font-semibold text-emerald-700'>
+                      {ticket.status}
+                    </span>
+                  </div>
+
+                  <p className='mt-3 text-[10px] text-muted-foreground'>
+                    Issued {formatDateTime(ticket.issuedAt)}
+                  </p>
+                </div>
+              ))
+            : <p className='py-4 text-center text-xs text-muted-foreground'>
+                No tickets issued.
+              </p>
+            }
+          </div>
+        </section>
+
+        {/* Refund */}
+        {item.refund ?
+          <section className='rounded-2xl border border-border/70 bg-background p-5 shadow-sm'>
+            <SectionHeading
+              icon={<Banknote className='size-4' />}
+              title='Refund'
+            />
+
+            <div className='mt-4 space-y-3'>
+              <InfoItem
+                icon={<CircleDollarSign className='size-3.5' />}
+                label='Amount'
+                value={formatPhp(item.refund.amount)}
+              />
+
+              <InfoItem
+                icon={<CheckCircle2 className='size-3.5' />}
+                label='Status'
+                value={item.refund.status}
+              />
+
+              <InfoItem
+                icon={<FileText className='size-3.5' />}
+                label='Reason'
+                value={item.refund.reason}
+              />
+            </div>
+          </section>
+        : null}
+
+        {/* Booking timestamps */}
+        <section className='rounded-2xl border border-border/70 bg-background p-5 shadow-sm'>
+          <SectionHeading
+            icon={<CalendarDays className='size-4' />}
+            title='Booking record'
+          />
+
+          <div className='mt-4 space-y-3'>
             <InfoItem
               icon={<CalendarDays className='size-3.5' />}
-              label='Expires'
-              value={formatDateTime(booking.expiresAt)}
+              label='Created'
+              value={formatDateTime(booking.createdAt)}
             />
-          : <InfoItem
-              icon={<CheckCircle2 className='size-3.5' />}
-              label='Expiration'
-              value='No expiration'
-            />
-          }
-        </div>
-      </section>
+
+            {booking.expiresAt ?
+              <InfoItem
+                icon={<CalendarDays className='size-3.5' />}
+                label='Expires'
+                value={formatDateTime(booking.expiresAt)}
+              />
+            : <InfoItem
+                icon={<CheckCircle2 className='size-3.5' />}
+                label='Expiration'
+                value='No expiration'
+              />
+            }
+          </div>
+        </section>
+      </div>
     </aside>
   );
 }

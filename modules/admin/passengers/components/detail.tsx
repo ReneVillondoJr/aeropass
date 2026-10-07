@@ -93,8 +93,8 @@ export function PassengerDetail({ passenger }: PassengerDetailProps) {
   }
 
   return (
-    <section className='min-w-0 xl:sticky xl:top-6'>
-      <div className='overflow-hidden rounded-2xl border border-border/70 bg-background shadow-sm'>
+    <section className='min-w-0 xl:sticky xl:top-6 '>
+      <div className='overflow-hidden rounded-2xl border border-border/70 bg-background shadow-sm '>
         <div className='bg-[#102A43] px-5 py-5 text-white sm:px-6'>
           <div className='flex items-start gap-3'>
             <div className='flex size-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-sm font-semibold'>
@@ -150,7 +150,7 @@ export function PassengerDetail({ passenger }: PassengerDetailProps) {
           </div>
         </div>
 
-        <div className=' overflow-y-auto overscroll-contain'>
+        <div className=' max-h-151.5 overflow-y-auto overscroll-contain'>
           <div className='space-y-5 p-5 sm:p-6'>
             <section>
               <div className='mb-3 flex items-center gap-2'>
