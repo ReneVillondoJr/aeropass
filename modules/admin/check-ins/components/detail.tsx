@@ -166,7 +166,7 @@ export function CheckInDetail({ checkIn }: CheckInDetailProps) {
           </div>
         </div>
 
-        <div className='max-h-151 overflow-y-auto overscroll-contain'>
+        <div className='max-h-150 overflow-y-scroll overscroll-contain scrollbar-subtle'>
           <div className='space-y-5 p-5 sm:p-6'>
             <section>
               <div className='mb-3 flex items-center gap-2'>
