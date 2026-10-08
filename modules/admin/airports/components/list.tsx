@@ -27,7 +27,6 @@ export function AirportList({
 
           <div>
             <h2 className='text-sm font-semibold'>Airport network</h2>
-
             <p className='mt-0.5 text-[10px] text-muted-foreground'>
               Locations and connected operations
             </p>
@@ -40,7 +39,7 @@ export function AirportList({
       </div>
 
       {airports.length > 0 ?
-        <div>
+        <div className='max-h-168 overflow-y-auto overscroll-contain pr-1'>
           {airports.map((item) => (
             <AirportRow
               key={item.airport.id}
@@ -50,7 +49,7 @@ export function AirportList({
             />
           ))}
         </div>
-      : <div className='flex min-h-[320px] flex-col items-center justify-center px-6 text-center'>
+      : <div className='flex min-h-80 flex-col items-center justify-center px-6 text-center'>
           <div className='flex size-12 items-center justify-center rounded-2xl bg-muted'>
             <Building2 className='size-5 text-muted-foreground' />
           </div>

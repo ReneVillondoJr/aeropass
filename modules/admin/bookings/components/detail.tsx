@@ -38,7 +38,7 @@ export function BookingDetail({ booking: item }: BookingDetailProps) {
   if (!item) {
     return (
       <section className='xl:sticky xl:top-6'>
-        <div className='flex min-h-110 flex-col items-center justify-center rounded-2xl border border-dashed border-border/70 bg-background px-6 text-center shadow-sm'>
+        <div className='flex min-h-110 flex-col items-center justify-center rounded-[1.5rem] border border-dashed border-border/70 bg-background px-6 text-center shadow-sm'>
           <div className='flex size-12 items-center justify-center rounded-2xl bg-[#E5F5FC] text-[#5BA9D6]'>
             <Ticket className='size-5' />
           </div>
@@ -65,7 +65,7 @@ export function BookingDetail({ booking: item }: BookingDetailProps) {
 
   return (
     <section className='min-w-0 xl:sticky xl:top-6'>
-      <div className='overflow-hidden rounded-2xl border border-border/70 bg-background shadow-sm'>
+      <div className='overflow-hidden rounded-[1.5rem] border border-border/70 bg-background shadow-sm'>
         {/* Header */}
         <div className='bg-[#102A43] px-5 py-5 text-white sm:px-6'>
           <div className='flex min-w-0 items-start justify-between gap-4'>
@@ -75,15 +75,15 @@ export function BookingDetail({ booking: item }: BookingDetailProps) {
               </div>
 
               <div className='min-w-0'>
-                <p className='text-[9px] font-medium uppercase tracking-[0.16em] text-white/45'>
+                <p className='text-[9px] font-medium uppercase tracking-[0.16em] text-white/40'>
                   Booking details
                 </p>
 
-                <h2 className='mt-1 truncate text-lg font-semibold'>
+                <h2 className='mt-1 truncate text-lg font-semibold tracking-tight'>
                   {booking.bookingReference}
                 </h2>
 
-                <p className='mt-1 truncate text-[11px] text-white/60'>
+                <p className='mt-1 truncate text-[11px] text-white/55'>
                   {item.customerName}
                 </p>
               </div>
@@ -100,7 +100,7 @@ export function BookingDetail({ booking: item }: BookingDetailProps) {
           </div>
 
           {item.flight ?
-            <div className='mt-4 rounded-xl bg-white/[0.05] p-3'>
+            <div className='mt-5 rounded-2xl bg-white/[0.045] px-4 py-3.5'>
               <div className='flex items-center gap-2'>
                 <Plane className='size-3.5 text-[#B9E4F8]' />
 
@@ -109,18 +109,18 @@ export function BookingDetail({ booking: item }: BookingDetailProps) {
                 </span>
               </div>
 
-              <div className='mt-2 flex items-center gap-2 text-xs text-white/65'>
+              <div className='mt-2.5 flex items-center gap-2 text-xs text-white/55'>
                 <span className='font-semibold text-white'>
                   {item.flight.originCode}
                 </span>
 
-                <span>→</span>
+                <span className='text-white/30'>→</span>
 
                 <span className='font-semibold text-white'>
                   {item.flight.destinationCode}
                 </span>
 
-                <span className='text-white/40'>·</span>
+                <span className='text-white/30'>·</span>
 
                 <span>{formatDate(item.flight.flight.departureDate)}</span>
               </div>
@@ -139,8 +139,8 @@ export function BookingDetail({ booking: item }: BookingDetailProps) {
         </div>
 
         {/* Scrollable content */}
-        <div className='max-h-100 overflow-y-scroll overscroll-contain scrollbar-subtle'>
-          <div className='space-y-5 p-5 sm:p-6'>
+        <div className='max-h-99.5 overflow-y-scroll overscroll-contain scrollbar-subtle'>
+          <div className='space-y-7 p-5 sm:p-6'>
             {/* Customer */}
             <section>
               <SectionHeading
@@ -148,7 +148,7 @@ export function BookingDetail({ booking: item }: BookingDetailProps) {
                 title='Customer'
               />
 
-              <div className='mt-4 grid gap-3 sm:grid-cols-2'>
+              <div className='mt-4 grid gap-4 sm:grid-cols-2'>
                 <InfoItem
                   icon={<Users className='size-3.5' />}
                   label='Account'
@@ -170,18 +170,18 @@ export function BookingDetail({ booking: item }: BookingDetailProps) {
             </section>
 
             {/* Travel */}
-            <section className='border-t border-border/60 pt-5'>
+            <section className='border-t border-border/60 pt-7'>
               <SectionHeading
                 icon={<Plane className='size-4' />}
                 title='Travel details'
               />
 
               {item.flight ?
-                <div className='mt-4 space-y-3'>
+                <div className='mt-4 space-y-4'>
                   <div className='rounded-2xl bg-[#EEF7FB] p-4'>
                     <div className='flex items-center justify-between gap-3'>
                       <div>
-                        <p className='text-[10px] uppercase tracking-[0.08em] text-muted-foreground'>
+                        <p className='text-[10px] font-medium uppercase tracking-[0.1em] text-muted-foreground'>
                           Flight
                         </p>
 
@@ -190,10 +190,12 @@ export function BookingDetail({ booking: item }: BookingDetailProps) {
                         </p>
                       </div>
 
-                      <BadgeCheck className='size-5 text-[#102A43]' />
+                      <div className='flex size-8 items-center justify-center rounded-xl bg-white/70'>
+                        <BadgeCheck className='size-4 text-[#102A43]' />
+                      </div>
                     </div>
 
-                    <div className='mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-3'>
+                    <div className='mt-5 grid grid-cols-[1fr_auto_1fr] items-center gap-3'>
                       <div className='min-w-0'>
                         <p className='text-lg font-semibold'>
                           {item.flight.originCode}
@@ -204,7 +206,9 @@ export function BookingDetail({ booking: item }: BookingDetailProps) {
                         </p>
                       </div>
 
-                      <Plane className='size-4 shrink-0 text-[#5BA9D6]' />
+                      <div className='flex size-8 items-center justify-center rounded-full bg-white/70'>
+                        <Plane className='size-3.5 text-[#5BA9D6]' />
+                      </div>
 
                       <div className='min-w-0 text-right'>
                         <p className='text-lg font-semibold'>
@@ -218,7 +222,7 @@ export function BookingDetail({ booking: item }: BookingDetailProps) {
                     </div>
                   </div>
 
-                  <div className='grid gap-3 sm:grid-cols-2'>
+                  <div className='grid gap-4 sm:grid-cols-2'>
                     <InfoItem
                       icon={<CalendarDays className='size-3.5' />}
                       label='Departure date'
@@ -251,7 +255,7 @@ export function BookingDetail({ booking: item }: BookingDetailProps) {
             </section>
 
             {/* Passengers */}
-            <section className='border-t border-border/60 pt-5'>
+            <section className='border-t border-border/60 pt-7'>
               <SectionHeading
                 icon={<Users className='size-4' />}
                 title='Passengers'
@@ -271,7 +275,7 @@ export function BookingDetail({ booking: item }: BookingDetailProps) {
                     return (
                       <div
                         key={passenger.id}
-                        className='min-w-0 rounded-xl bg-muted/20 p-3.5'
+                        className='rounded-2xl bg-muted/20 p-4'
                       >
                         <div className='flex min-w-0 items-start justify-between gap-3'>
                           <div className='min-w-0'>
@@ -284,12 +288,12 @@ export function BookingDetail({ booking: item }: BookingDetailProps) {
                             </p>
                           </div>
 
-                          <span className='shrink-0 rounded-full bg-background px-2 py-1 text-[9px] font-semibold'>
+                          <span className='shrink-0 rounded-full bg-background px-2.5 py-1 text-[9px] font-semibold'>
                             {passenger.nationality}
                           </span>
                         </div>
 
-                        <div className='mt-3 grid gap-3 sm:grid-cols-2'>
+                        <div className='mt-4 grid gap-4 sm:grid-cols-2'>
                           <InfoItem
                             icon={<FileText className='size-3.5' />}
                             label='Gender'
@@ -305,15 +309,12 @@ export function BookingDetail({ booking: item }: BookingDetailProps) {
                       </div>
                     );
                   })
-                : <p className='py-4 text-center text-xs text-muted-foreground'>
-                    No passengers recorded.
-                  </p>
-                }
+                : <EmptyState text='No passengers recorded.' />}
               </div>
             </section>
 
             {/* Reservations */}
-            <section className='border-t border-border/60 pt-5'>
+            <section className='border-t border-border/60 pt-7'>
               <SectionHeading
                 icon={<Receipt className='size-4' />}
                 title='Reservations'
@@ -331,7 +332,7 @@ export function BookingDetail({ booking: item }: BookingDetailProps) {
                     return (
                       <div
                         key={reservation.id}
-                        className='min-w-0 rounded-xl bg-muted/20 p-3.5'
+                        className='rounded-2xl bg-muted/20 p-4'
                       >
                         <div className='flex min-w-0 items-start justify-between gap-3'>
                           <div className='min-w-0'>
@@ -344,12 +345,12 @@ export function BookingDetail({ booking: item }: BookingDetailProps) {
                             </p>
                           </div>
 
-                          <span className='shrink-0 rounded-full bg-background px-2 py-1 text-[9px] font-semibold'>
+                          <span className='shrink-0 rounded-full bg-background px-2.5 py-1 text-[9px] font-semibold'>
                             {reservation.status}
                           </span>
                         </div>
 
-                        <div className='mt-3 flex items-center justify-between gap-3 border-t border-border/50 pt-3'>
+                        <div className='mt-4 flex items-center justify-between gap-3 border-t border-border/50 pt-3'>
                           <span className='text-xs text-muted-foreground'>
                             Fare
                           </span>
@@ -361,15 +362,12 @@ export function BookingDetail({ booking: item }: BookingDetailProps) {
                       </div>
                     );
                   })
-                : <p className='py-4 text-center text-xs text-muted-foreground'>
-                    No reservations recorded.
-                  </p>
-                }
+                : <EmptyState text='No reservations recorded.' />}
               </div>
             </section>
 
             {/* Payment */}
-            <section className='border-t border-border/60 pt-5'>
+            <section className='border-t border-border/60 pt-7'>
               <SectionHeading
                 icon={<WalletCards className='size-4' />}
                 title='Payment'
@@ -379,7 +377,7 @@ export function BookingDetail({ booking: item }: BookingDetailProps) {
                 <div className='rounded-2xl bg-[#EEF7FB] p-4'>
                   <div className='flex items-start justify-between gap-4'>
                     <div>
-                      <p className='text-[10px] uppercase tracking-[0.08em] text-muted-foreground'>
+                      <p className='text-[10px] font-medium uppercase tracking-[0.1em] text-muted-foreground'>
                         Booking total
                       </p>
 
@@ -388,10 +386,12 @@ export function BookingDetail({ booking: item }: BookingDetailProps) {
                       </p>
                     </div>
 
-                    <CircleDollarSign className='size-5 text-[#102A43]' />
+                    <div className='flex size-8 items-center justify-center rounded-xl bg-white/70'>
+                      <CircleDollarSign className='size-4 text-[#102A43]' />
+                    </div>
                   </div>
 
-                  <div className='mt-4 grid gap-3 sm:grid-cols-2'>
+                  <div className='mt-4 grid gap-4 sm:grid-cols-2'>
                     <InfoItem
                       icon={<CreditCard className='size-3.5' />}
                       label='Payment method'
@@ -406,7 +406,7 @@ export function BookingDetail({ booking: item }: BookingDetailProps) {
                   </div>
                 </div>
 
-                <div className='space-y-2'>
+                <div className='space-y-1'>
                   <AmountRow label='Subtotal' value={booking.subtotal} />
 
                   <AmountRow label='Taxes' value={booking.taxes} />
@@ -423,7 +423,7 @@ export function BookingDetail({ booking: item }: BookingDetailProps) {
 
                   <AmountRow label='Discount' value={-booking.discount} />
 
-                  <div className='mt-3 flex items-center justify-between gap-3 border-t border-border pt-3'>
+                  <div className='mt-3 flex items-center justify-between gap-3 border-t border-border pt-4'>
                     <span className='text-sm font-semibold'>Total</span>
 
                     <span className='text-base font-semibold tabular-nums'>
@@ -434,12 +434,12 @@ export function BookingDetail({ booking: item }: BookingDetailProps) {
               </div>
 
               {item.payment ?
-                <div className='mt-4 rounded-xl bg-muted/20 p-3.5'>
-                  <p className='text-[10px] font-medium uppercase tracking-[0.07em] text-muted-foreground'>
+                <div className='mt-4 rounded-2xl bg-muted/20 p-4'>
+                  <p className='text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground'>
                     Provider reference
                   </p>
 
-                  <p className='mt-1 break-all text-xs font-semibold'>
+                  <p className='mt-1.5 break-all text-xs font-semibold'>
                     {item.payment.providerReference}
                   </p>
 
@@ -453,7 +453,7 @@ export function BookingDetail({ booking: item }: BookingDetailProps) {
             </section>
 
             {/* Tickets */}
-            <section className='border-t border-border/60 pt-5'>
+            <section className='border-t border-border/60 pt-7'>
               <SectionHeading
                 icon={<Ticket className='size-4' />}
                 title='Tickets'
@@ -464,7 +464,7 @@ export function BookingDetail({ booking: item }: BookingDetailProps) {
                   item.tickets.map((ticket) => (
                     <div
                       key={ticket.id}
-                      className='min-w-0 rounded-xl bg-muted/20 p-3.5'
+                      className='rounded-2xl bg-muted/20 p-4'
                     >
                       <div className='flex min-w-0 items-start justify-between gap-3'>
                         <div className='min-w-0'>
@@ -481,7 +481,7 @@ export function BookingDetail({ booking: item }: BookingDetailProps) {
                           </p>
                         </div>
 
-                        <span className='shrink-0 rounded-full bg-emerald-50 px-2 py-1 text-[9px] font-semibold text-emerald-700'>
+                        <span className='shrink-0 rounded-full bg-emerald-50 px-2.5 py-1 text-[9px] font-semibold text-emerald-700'>
                           {ticket.status}
                         </span>
                       </div>
@@ -491,22 +491,19 @@ export function BookingDetail({ booking: item }: BookingDetailProps) {
                       </p>
                     </div>
                   ))
-                : <p className='py-4 text-center text-xs text-muted-foreground'>
-                    No tickets issued.
-                  </p>
-                }
+                : <EmptyState text='No tickets issued.' />}
               </div>
             </section>
 
             {/* Refund */}
             {item.refund ?
-              <section className='border-t border-border/60 pt-5'>
+              <section className='border-t border-border/60 pt-7'>
                 <SectionHeading
                   icon={<Banknote className='size-4' />}
                   title='Refund'
                 />
 
-                <div className='mt-4 grid gap-3 sm:grid-cols-2'>
+                <div className='mt-4 grid gap-4 sm:grid-cols-2'>
                   <InfoItem
                     icon={<CircleDollarSign className='size-3.5' />}
                     label='Amount'
@@ -531,13 +528,13 @@ export function BookingDetail({ booking: item }: BookingDetailProps) {
             : null}
 
             {/* Booking record */}
-            <section className='border-t border-border/60 pt-5'>
+            <section className='border-t border-border/60 pt-7'>
               <SectionHeading
                 icon={<CalendarDays className='size-4' />}
                 title='Booking record'
               />
 
-              <div className='mt-4 grid gap-3 sm:grid-cols-2'>
+              <div className='mt-4 grid gap-4 sm:grid-cols-2'>
                 <InfoItem
                   icon={<CalendarDays className='size-3.5' />}
                   label='Created'
@@ -567,14 +564,12 @@ export function BookingDetail({ booking: item }: BookingDetailProps) {
 
 function SectionHeading({ icon, title }: { icon: ReactNode; title: string }) {
   return (
-    <div className='flex items-center gap-2'>
-      <div className='flex size-7 items-center justify-center rounded-lg bg-[#EEF7FB] text-[#102A43]'>
+    <div className='flex items-center gap-2.5'>
+      <div className='flex size-8 items-center justify-center rounded-xl bg-[#EEF7FB] text-[#102A43]'>
         {icon}
       </div>
 
-      <h3 className='text-xs font-semibold uppercase tracking-wide text-foreground'>
-        {title}
-      </h3>
+      <h3 className='text-sm font-semibold tracking-tight'>{title}</h3>
     </div>
   );
 }
@@ -587,12 +582,12 @@ function DarkMetric({
   value: string | number;
 }) {
   return (
-    <div className='min-w-0 rounded-xl bg-white/[0.05] p-3'>
-      <p className='truncate text-[9px] uppercase tracking-[0.09em] text-white/40'>
+    <div className='min-w-0 rounded-xl bg-white/[0.05] px-3 py-2.5'>
+      <p className='truncate text-[9px] font-medium uppercase tracking-[0.09em] text-white/35'>
         {label}
       </p>
 
-      <p className='mt-1.5 truncate text-sm font-semibold tabular-nums'>
+      <p className='mt-1.5 truncate text-sm font-semibold tabular-nums text-white/95'>
         {value}
       </p>
     </div>
@@ -619,7 +614,9 @@ function InfoItem({
           {label}
         </p>
 
-        <p className='mt-1 break-words text-xs font-semibold'>{value}</p>
+        <p className='mt-1 break-words text-xs font-semibold text-foreground'>
+          {value}
+        </p>
       </div>
     </div>
   );
@@ -635,7 +632,7 @@ function AmountRow({
   value: number;
 }) {
   return (
-    <div className='flex items-center justify-between gap-3 rounded-lg bg-muted/20 px-3 py-2.5'>
+    <div className='flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-muted/30'>
       <span className='flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground'>
         {icon}
         <span className='truncate'>{label}</span>
@@ -645,6 +642,14 @@ function AmountRow({
         {formatPhp(value)}
       </span>
     </div>
+  );
+}
+
+function EmptyState({ text }: { text: string }) {
+  return (
+    <p className='rounded-xl bg-muted/20 px-4 py-5 text-center text-xs text-muted-foreground'>
+      {text}
+    </p>
   );
 }
 

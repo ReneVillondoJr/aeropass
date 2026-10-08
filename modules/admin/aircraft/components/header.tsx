@@ -15,7 +15,7 @@ export function AircraftHeader({ stats }: AircraftHeaderProps) {
         <div className='relative'>
           <div className='flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between'>
             <div className='max-w-2xl'>
-              <div className='mb-3 flex items-center gap-2'>
+              <div className='mb-13 flex items-center gap-2'>
                 <div className='flex size-9 items-center justify-center rounded-xl bg-white/10'>
                   <Plane className='size-4 text-[#B9E4F8]' />
                 </div>
