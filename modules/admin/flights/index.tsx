@@ -5,10 +5,10 @@ import { Plus, Radio } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 import { CreateFlightForm } from './components/create-flight-form';
-import { FlightBoarding } from './components/flight-boarding';
-import { FlightList } from './components/flight-list';
-import { FlightOverview } from './components/flight-overview';
-import { FlightStats } from './components/flight-stats';
+import { FlightBoarding } from './components/boarding';
+import { FlightList } from './components/list';
+import { FlightOverview } from './components/overview';
+import { FlightStats } from './components/stats';
 import { useFlights } from './hooks/use-flights';
 
 export function AdminFlights() {
@@ -87,6 +87,9 @@ export function AdminFlights() {
           onSearchChange={setSearch}
           onStatusChange={setStatusFilter}
           onSelect={setSelectedFlightId}
+          onResetFilters={function (): void {
+            throw new Error('Function not implemented.');
+          }}
         />
 
         <div className='space-y-6'>

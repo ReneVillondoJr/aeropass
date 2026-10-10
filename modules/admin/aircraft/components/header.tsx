@@ -10,12 +10,12 @@ export function AircraftHeader({ stats }: AircraftHeaderProps) {
   return (
     <section className='overflow-hidden rounded-3xl bg-[#102A43] text-white shadow-sm'>
       <div className='relative p-6 sm:p-7'>
-        <div className='absolute -right-16 -top-20 size-56 rounded-full bg-[#5BA9D6]/10 blur-2xl' />
+        <div className='absolute -right-20 -top-24 size-64 rounded-full bg-[#5BA9D6]/10 blur-3xl' />
 
         <div className='relative'>
-          <div className='flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between'>
+          <div className='flex flex-col gap-7 xl:flex-row xl:items-end xl:justify-between'>
             <div className='max-w-2xl'>
-              <div className='mb-13 flex items-center gap-2'>
+              <div className='mb-3 flex items-center gap-2'>
                 <div className='flex size-9 items-center justify-center rounded-xl bg-white/10'>
                   <Plane className='size-4 text-[#B9E4F8]' />
                 </div>
@@ -69,7 +69,7 @@ export function AircraftHeader({ stats }: AircraftHeaderProps) {
 
               <HeaderMetric
                 icon={<Activity className='size-4' />}
-                label='Flight instances'
+                label='Instances'
                 value={stats.flightInstances}
               />
             </div>
@@ -109,16 +109,16 @@ function HeaderMetric({
   value: number;
 }) {
   return (
-    <div className='rounded-2xl border border-white/10 bg-white/[0.07] p-3'>
-      <div className='flex items-center gap-2 text-white/50'>
+    <div className='min-w-0 rounded-2xl border border-white/10 bg-white/[0.07] p-3'>
+      <div className='flex min-w-0 items-center gap-2 text-white/50'>
         {icon}
 
-        <span className='text-[10px] font-medium uppercase tracking-[0.1em]'>
+        <span className='truncate text-[10px] font-medium uppercase tracking-[0.08em]'>
           {label}
         </span>
       </div>
 
-      <p className='mt-2 text-xl font-semibold tabular-nums'>
+      <p className='mt-2 truncate text-xl font-semibold tabular-nums'>
         {value.toLocaleString()}
       </p>
     </div>
@@ -133,10 +133,10 @@ function HeaderFootprint({
   value: string | number;
 }) {
   return (
-    <div>
-      <p className='text-white/40'>{label}</p>
+    <div className='min-w-0'>
+      <p className='truncate text-white/40'>{label}</p>
 
-      <p className='mt-1 font-medium text-white/90'>{value}</p>
+      <p className='mt-1 truncate font-medium text-white/90'>{value}</p>
     </div>
   );
 }

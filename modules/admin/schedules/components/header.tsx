@@ -1,4 +1,10 @@
-import { CalendarDays, PlaneTakeoff } from 'lucide-react';
+import {
+  CalendarDays,
+  CheckCircle2,
+  Plane,
+  PlaneTakeoff,
+  Route,
+} from 'lucide-react';
 
 import type { ScheduleStats } from '../types/schedule';
 
@@ -8,103 +14,133 @@ interface ScheduleHeaderProps {
 
 export function ScheduleHeader({ stats }: ScheduleHeaderProps) {
   return (
-    <div className='relative overflow-hidden rounded-[1.75rem] border border-border/70 bg-card shadow-[0_18px_50px_rgba(15,23,42,0.05)]'>
-      <div className='absolute inset-0 bg-[radial-gradient(circle_at_90%_10%,rgba(91,169,214,0.14),transparent_30%),radial-gradient(circle_at_15%_120%,rgba(16,42,67,0.05),transparent_28%)]' />
+    <section className='overflow-hidden rounded-3xl bg-[#102A43] text-white shadow-sm'>
+      <div className='relative p-6 sm:p-7'>
+        <div className='absolute -right-20 -top-24 size-64 rounded-full bg-[#5BA9D6]/10 blur-3xl' />
 
-      <div className='relative px-5 py-6 sm:px-7 sm:py-7'>
-        <div className='flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between'>
-          <div className='flex min-w-0 items-start gap-4'>
-            <div className='flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[#102A43] text-white shadow-lg shadow-[#102A43]/15'>
-              <CalendarDays className='size-5' />
-            </div>
+        <div className='relative'>
+          <div className='flex flex-col gap-7 xl:flex-row xl:items-end xl:justify-between'>
+            <div className='max-w-2xl'>
+              <div className='mb-3 flex flex-wrap items-center gap-2'>
+                <div className='flex size-9 items-center justify-center rounded-xl bg-white/10'>
+                  <CalendarDays className='size-4 text-[#B9E4F8]' />
+                </div>
 
-            <div>
-              <div className='flex flex-wrap items-center gap-2'>
-                <p className='text-[10px] font-semibold uppercase tracking-[0.18em] text-[#5BA9D6]'>
+                <span className='text-xs font-semibold uppercase tracking-[0.14em] text-[#B9E4F8]'>
                   Flight operations
-                </p>
+                </span>
 
-                <span className='rounded-full bg-emerald-50 px-2.5 py-1 text-[9px] font-semibold text-emerald-700'>
+                <span className='rounded-full bg-emerald-400/15 px-2.5 py-1 text-[10px] font-semibold text-emerald-300'>
                   Timetable active
                 </span>
               </div>
 
-              <h1 className='mt-1 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl'>
+              <h1 className='text-2xl font-semibold tracking-tight sm:text-3xl'>
                 Schedule control
               </h1>
 
-              <p className='mt-2 max-w-2xl text-xs leading-5 text-muted-foreground sm:text-sm'>
+              <p className='mt-2 max-w-xl text-sm leading-6 text-white/65'>
                 Manage recurring flight services, operating times, aircraft
                 assignments, and route cadence from one operations view.
               </p>
             </div>
-          </div>
 
-          <div className='grid grid-cols-2 gap-3 sm:grid-cols-4'>
-            <div className='rounded-2xl border border-border/70 bg-background/70 px-4 py-3 backdrop-blur-sm'>
-              <p className='text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-foreground'>
-                Schedules
-              </p>
+            <div className='grid grid-cols-2 gap-3 sm:grid-cols-4 xl:w-[500px]'>
+              <HeaderMetric
+                icon={<CalendarDays className='size-4' />}
+                label='Schedules'
+                value={stats.total}
+              />
 
-              <p className='mt-1 text-xl font-semibold tracking-tight'>
-                {stats.total}
-              </p>
-            </div>
+              <HeaderMetric
+                icon={<CheckCircle2 className='size-4' />}
+                label='Active'
+                value={stats.active}
+              />
 
-            <div className='rounded-2xl border border-border/70 bg-background/70 px-4 py-3 backdrop-blur-sm'>
-              <p className='text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-foreground'>
-                Active
-              </p>
+              <HeaderMetric
+                icon={<Route className='size-4' />}
+                label='Routes'
+                value={stats.routes}
+              />
 
-              <p className='mt-1 text-xl font-semibold tracking-tight text-emerald-600'>
-                {stats.active}
-              </p>
-            </div>
-
-            <div className='rounded-2xl border border-border/70 bg-background/70 px-4 py-3 backdrop-blur-sm'>
-              <p className='text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-foreground'>
-                Routes
-              </p>
-
-              <p className='mt-1 text-xl font-semibold tracking-tight'>
-                {stats.routes}
-              </p>
-            </div>
-
-            <div className='rounded-2xl border border-border/70 bg-background/70 px-4 py-3 backdrop-blur-sm'>
-              <p className='text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-foreground'>
-                Aircraft
-              </p>
-
-              <p className='mt-1 text-xl font-semibold tracking-tight'>
-                {stats.aircraft}
-              </p>
+              <HeaderMetric
+                icon={<Plane className='size-4' />}
+                label='Aircraft'
+                value={stats.aircraft}
+              />
             </div>
           </div>
-        </div>
 
-        <div className='mt-6 flex flex-wrap items-center gap-2 border-t border-border/60 pt-5'>
-          <div className='flex items-center gap-2 rounded-xl bg-[#EEF7FB] px-3 py-2 text-[#102A43]'>
-            <PlaneTakeoff className='size-3.5' />
+          <div className='mt-7 border-t border-white/10 pt-4'>
+            <div className='grid gap-4 text-xs sm:grid-cols-3'>
+              <HeaderFootprint
+                icon={<PlaneTakeoff className='size-3.5' />}
+                label='Daily services'
+                value={stats.daily}
+              />
 
-            <span className='text-[10px] font-semibold'>
-              {stats.daily} daily services
-            </span>
-          </div>
+              <HeaderFootprint
+                label='Weekday schedules'
+                value={stats.weekdays}
+              />
 
-          <div className='rounded-xl border border-border/70 bg-background/65 px-3 py-2'>
-            <span className='text-[10px] font-medium text-muted-foreground'>
-              {stats.weekdays} weekday schedules
-            </span>
-          </div>
-
-          <div className='rounded-xl border border-border/70 bg-background/65 px-3 py-2'>
-            <span className='text-[10px] font-medium text-muted-foreground'>
-              {stats.weekends} weekend schedules
-            </span>
+              <HeaderFootprint
+                label='Weekend schedules'
+                value={stats.weekends}
+              />
+            </div>
           </div>
         </div>
       </div>
+    </section>
+  );
+}
+
+function HeaderMetric({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string | number;
+}) {
+  return (
+    <div className='min-w-0 rounded-2xl border border-white/10 bg-white/[0.07] p-3'>
+      <div className='flex min-w-0 items-center gap-2 text-white/50'>
+        {icon}
+
+        <span className='truncate text-[10px] font-medium uppercase tracking-[0.08em]'>
+          {label}
+        </span>
+      </div>
+
+      <p className='mt-2 truncate text-xl font-semibold tabular-nums'>
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function HeaderFootprint({
+  icon,
+  label,
+  value,
+}: {
+  icon?: React.ReactNode;
+  label: string;
+  value: string | number;
+}) {
+  return (
+    <div className='min-w-0'>
+      <p className='flex items-center gap-1.5 text-white/40'>
+        {icon}
+
+        <span className='truncate'>{label}</span>
+      </p>
+
+      <p className='mt-1 truncate font-medium text-white/90'>{value}</p>
     </div>
   );
 }

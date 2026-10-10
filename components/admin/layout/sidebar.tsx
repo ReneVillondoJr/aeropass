@@ -36,16 +36,17 @@ export function AdminSidebar() {
     <Sidebar
       collapsible='icon'
       variant='sidebar'
-      className='border-r border-border/70'
+      className='border-r border-border/60'
     >
       {/* Brand */}
-      <SidebarHeader className='border-b border-border/70 p-2'>
+      <SidebarHeader className='border-b border-border/60 p-3 group-data-[collapsible=icon]:p-2'>
         <button
           type='button'
+          aria-label='Go to dashboard'
           onClick={() => router.push('/admin/dashboard')}
-          className='group flex h-12 w-full items-center gap-3 rounded-xl px-2.5 text-left outline-none transition-colors hover:bg-muted/70 focus-visible:ring-2 focus-visible:ring-ring'
+          className='group/brand flex min-h-12 w-full min-w-0 items-center gap-3 rounded-xl px-2 text-left outline-none transition-colors hover:bg-muted/60 focus-visible:ring-2 focus-visible:ring-ring group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:px-0'
         >
-          <div className='relative flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm'>
+          <div className='relative flex size-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-sm ring-1 ring-inset ring-white/10 transition-transform duration-200 group-hover/brand:scale-[1.03] group-data-[collapsible=icon]:size-8'>
             <svg
               viewBox='0 0 24 24'
               fill='none'
@@ -67,11 +68,11 @@ export function AdminSidebar() {
           </div>
 
           <div className='min-w-0 group-data-[collapsible=icon]:hidden'>
-            <p className='truncate text-sm font-semibold tracking-tight text-foreground'>
+            <p className='truncate text-sm font-semibold leading-none tracking-tight text-foreground'>
               AeroPass
             </p>
 
-            <p className='mt-0.5 truncate text-[11px] font-medium text-muted-foreground'>
+            <p className='mt-1.5 truncate text-[10px] font-medium uppercase leading-none tracking-[0.12em] text-muted-foreground'>
               Airline Operations
             </p>
           </div>
@@ -79,10 +80,10 @@ export function AdminSidebar() {
       </SidebarHeader>
 
       {/* Navigation */}
-      <SidebarContent className='px-2 py-3'>
+      <SidebarContent className='gap-0 px-2 py-4'>
         {adminNavigationGroups.map((group) => (
-          <SidebarGroup key={group.label} className='mb-1 last:mb-0'>
-            <SidebarGroupLabel className='mb-1 px-2 text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground/70 group-data-[collapsible=icon]:hidden'>
+          <SidebarGroup key={group.label} className='mb-2 p-0 last:mb-0'>
+            <SidebarGroupLabel className='mb-1.5 h-auto px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/60 group-data-[collapsible=icon]:hidden'>
               {group.label}
             </SidebarGroupLabel>
 
@@ -103,16 +104,16 @@ export function AdminSidebar() {
                         tooltip={item.title}
                         onClick={() => router.push(item.href)}
                         className={[
-                          'relative h-9 rounded-lg px-2.5 text-muted-foreground transition-all duration-150',
-                          'hover:bg-muted hover:text-foreground',
-                          'data-[active=true]:bg-primary data-[active=true]:text-primary-foreground',
-                          'data-[active=true]:shadow-sm',
+                          'relative h-9 rounded-lg px-3 text-[13px] font-medium text-muted-foreground transition-colors duration-150',
+                          'hover:bg-muted/70 hover:text-foreground',
+                          'data-[active=true]:bg-primary/10 data-[active=true]:font-semibold data-[active=true]:text-primary',
+                          'data-[active=true]:hover:bg-primary/15',
                         ].join(' ')}
                       >
                         {active ?
                           <span
                             aria-hidden='true'
-                            className='absolute left-0.5 top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-full bg-primary-foreground/90'
+                            className='absolute -left-2 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-primary group-data-[collapsible=icon]:-left-1'
                           />
                         : null}
 
@@ -130,20 +131,20 @@ export function AdminSidebar() {
       </SidebarContent>
 
       {/* Support */}
-      <SidebarFooter className='border-t border-border/70 p-2'>
+      <SidebarFooter className='border-t border-border/60 p-2'>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
               type='button'
               tooltip={adminSupportNavigation.title}
               onClick={() => router.push(adminSupportNavigation.href)}
-              className='h-9 rounded-lg px-2.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground'
+              className='h-10 rounded-lg border border-border/60 bg-muted/30 px-3 text-[13px] font-medium text-muted-foreground transition-colors hover:border-border hover:bg-muted/70 hover:text-foreground group-data-[collapsible=icon]:border-transparent group-data-[collapsible=icon]:bg-transparent'
             >
               <SupportIcon className='size-4 shrink-0' />
 
               <span className='truncate'>{adminSupportNavigation.title}</span>
 
-              <span className='ml-auto flex size-5 items-center justify-center rounded-md bg-emerald-500/10 text-emerald-600 group-data-[collapsible=icon]:hidden'>
+              <span className='ml-auto flex size-5 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 group-data-[collapsible=icon]:hidden'>
                 <CheckCircle2 className='size-3' />
               </span>
             </SidebarMenuButton>

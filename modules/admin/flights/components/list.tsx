@@ -5,7 +5,7 @@ import { AdminFilterSelect } from '@/components/filter-select';
 
 import type { FlightListItem } from '../types/flights';
 
-import { FlightCard } from './flight-card';
+import { FlightCard } from './card';
 
 interface FlightListProps {
   flights: FlightListItem[];

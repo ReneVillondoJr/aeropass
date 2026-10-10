@@ -23,7 +23,7 @@ export function RoleDetail({ role }: RoleDetailProps) {
   if (!role) {
     return (
       <section className='rounded-[1.5rem] border border-border/70 bg-card shadow-sm xl:sticky xl:top-6'>
-        <div className='flex min-h-[420px] flex-col items-center justify-center px-6 py-10 text-center'>
+        <div className='flex min-h-105 flex-col items-center justify-center px-6 py-10 text-center'>
           <div className='flex size-12 items-center justify-center rounded-2xl bg-muted/50'>
             <ShieldCheck className='size-6 text-muted-foreground' />
           </div>
@@ -40,7 +40,7 @@ export function RoleDetail({ role }: RoleDetailProps) {
   }
 
   return (
-    <section className='flex max-h-[760px] flex-col overflow-hidden rounded-[1.5rem] border border-border/70 bg-card shadow-sm xl:sticky xl:top-6'>
+    <section className='flex max-h-190 flex-col overflow-hidden rounded-[1.5rem] border border-border/70 bg-card shadow-sm xl:sticky xl:top-6'>
       {/* Fixed role summary */}
       <div className='shrink-0 border-b border-border/70 bg-muted/20 px-5 py-5 sm:px-6'>
         <div className='flex items-start gap-4'>
