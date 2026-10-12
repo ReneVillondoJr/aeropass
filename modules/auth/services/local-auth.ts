@@ -148,7 +148,20 @@ function getStoredPassword(email: string, role: AuthRole) {
     return registeredUser.password;
   }
 
-  return getPasswordOverride(email, role)?.password;
+  const passwordOverride = getPasswordOverride(email, role);
+
+  if (passwordOverride) {
+    return passwordOverride.password;
+  }
+
+  if (
+    role === 'CUSTOMER' &&
+    normalizeEmail(demoCredentials.accounts.customer) === normalizeEmail(email)
+  ) {
+    return demoCredentials.password;
+  }
+
+  return undefined;
 }
 
 function accountExists(email: string, role: AuthRole) {
