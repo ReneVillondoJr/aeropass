@@ -1,14 +1,5 @@
-import type { Metadata } from 'next';
-
 import { CustomerBookingDetailsModule } from '@/modules/customer/booking-details';
 
-export const metadata: Metadata = {
-  title: 'Booking Details',
-  description:
-    'Review your AeroPass itinerary, passenger details, fare breakdown, and payment status.',
-};
-
-/** Replace this local mock ID with the authenticated customer's ID. */
 const DEMO_CUSTOMER_ID = 'user-006';
 
 interface CustomerBookingDetailsPageProps {
