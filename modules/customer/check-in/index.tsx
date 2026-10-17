@@ -2,17 +2,16 @@
 
 import { Info } from 'lucide-react';
 
+import { useCustomerId } from '@/modules/auth/hooks/use-customer-id';
+
 import { CheckInFilters } from './components/check-in-filters';
 import { CheckInHeader } from './components/check-in-header';
 import { CheckInList } from './components/check-in-list';
 import { useCustomerCheckIn } from './hooks/use-customer-check-in';
 
-interface CustomerCheckInModuleProps {
-  customerId: string;
-}
-
-export function CustomerCheckInModule({ customerId }: CustomerCheckInModuleProps) {
-  const { view, query, setQuery, filter, setFilter, filteredItems } = useCustomerCheckIn(customerId);
+export function CustomerCheckInModule() {
+  const customerId = useCustomerId();
+  const { view, query, setQuery, filter, setFilter, filteredItems } = useCustomerCheckIn(customerId ?? '');
   const filterIsActive = query.trim().length > 0 || filter !== 'ALL';
 
   return (

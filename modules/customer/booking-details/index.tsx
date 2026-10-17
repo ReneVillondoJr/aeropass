@@ -1,24 +1,26 @@
+'use client';
+
 import Link from 'next/link';
 import { AlertCircle, ArrowLeft, ArrowUpRight, Ticket } from 'lucide-react';
 
 import { CustomerEmptyState } from '@/components/customer/shared/empty-state';
 import { CustomerPageHeader } from '@/components/customer/shared/customer-page-header';
 import { CustomerStatusBadge } from '@/components/customer/shared/customer-status-badge';
+import { useCustomerId } from '@/modules/auth/hooks/use-customer-id';
 import { BookingItinerary } from './components/booking-itinerary';
 import { BookingPassengers } from './components/booking-passengers';
 import { BookingPaymentSummary } from './components/booking-payment-summary';
 import { getCustomerBookingDetailView } from '@/modules/customer/bookings/data/booking-view';
 
 interface CustomerBookingDetailsModuleProps {
-  customerId: string;
   bookingId: string;
 }
 
 export function CustomerBookingDetailsModule({
-  customerId,
   bookingId,
 }: CustomerBookingDetailsModuleProps) {
-  const booking = getCustomerBookingDetailView(customerId, bookingId);
+  const customerId = useCustomerId();
+  const booking = getCustomerBookingDetailView(customerId ?? '', bookingId);
 
   if (!booking) {
     return (

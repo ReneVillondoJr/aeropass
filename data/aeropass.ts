@@ -3551,4 +3551,408 @@ export function getBoardingDetailsByFlightId(flightId: string) {
     };
   });
 }
+
+/* -------------------------------------------------------------------------- */
+/* CUSTOMER-SCOPED READ REPOSITORY                                            */
+/* -------------------------------------------------------------------------- */
+/*
+ * These functions provide a database-like async read contract for customer
+ * routes while this project still uses local in-memory mock records.
+ *
+ * Keep canonical records in the arrays above. These functions only join the
+ * records by their IDs; they do not duplicate or persist business data.
+ *
+ * Customer-scoped functions always verify ownership before returning details.
+ * They return Promises so Server Components can use `await` just like a future
+ * database repository. This is still mock data, not a real server or database.
+ */
+
+export type CustomerSafePassenger = Omit<Passenger, 'passportNumber'> & {
+  maskedPassportNumber: string | null;
+};
+
+function isActiveCustomerAccount(customerId: string): boolean {
+  const customer = getUserById(customerId);
+
+  return Boolean(
+    customer && customer.role === 'CUSTOMER' && customer.status === 'ACTIVE',
+  );
+}
+
+function toCustomerSafePassenger(passenger: Passenger): CustomerSafePassenger {
+  const { passportNumber, ...safePassenger } = passenger;
+  const normalizedPassport = passportNumber?.replace(/\s+/g, '') ?? '';
+
+  return {
+    ...safePassenger,
+    maskedPassportNumber:
+      normalizedPassport.length === 0 ? null
+      : normalizedPassport.length <= 4 ? '••••'
+      : `${'•'.repeat(Math.min(8, normalizedPassport.length - 4))}${normalizedPassport.slice(-4)}`,
+  };
+}
+
+function getCustomerReservationRecord(reservation: Reservation) {
+  const passenger = getPassengerById(reservation.passengerId);
+  const seat = aircraftSeats.find((item) => item.id === reservation.seatId);
+  const fareClass = getFareClassById(reservation.fareClassId);
+
+  return {
+    ...reservation,
+    passenger: passenger ? toCustomerSafePassenger(passenger) : null,
+    seat: seat ?? null,
+    fareClass: fareClass ?? null,
+  };
+}
+
+function buildCustomerTicketRecord(customerId: string, ticket: Ticket) {
+  const booking = getBookingById(ticket.bookingId);
+
+  if (
+    !booking ||
+    booking.customerId !== customerId ||
+    !isActiveCustomerAccount(customerId)
+  ) {
+    return null;
+  }
+
+  const passenger = getPassengerById(ticket.passengerId);
+  const flight = getFlightDetails(ticket.flightId);
+
+  if (!passenger || !flight?.flight || !flight.origin || !flight.destination) {
+    return null;
+  }
+
+  const seat = aircraftSeats.find((item) => item.id === ticket.seatId) ?? null;
+
+  const reservation =
+    reservations.find(
+      (item) =>
+        item.bookingId === ticket.bookingId &&
+        item.passengerId === ticket.passengerId &&
+        item.flightId === ticket.flightId,
+    ) ?? null;
+
+  const fareClass =
+    reservation ? (getFareClassById(reservation.fareClassId) ?? null) : null;
+
+  return {
+    ticket,
+    booking,
+    passenger: toCustomerSafePassenger(passenger),
+    flight,
+    seat,
+    reservation:
+      reservation ?
+        {
+          ...reservation,
+          seat,
+          fareClass,
+        }
+      : null,
+    fareClass,
+    checkIn: getCheckInByTicketId(ticket.id) ?? null,
+    boarding: getBoardingByTicketId(ticket.id) ?? null,
+    baggage: getBaggageByBookingId(ticket.bookingId).filter(
+      (item) => item.passengerId === ticket.passengerId,
+    ),
+    payment: getPaymentByBookingId(booking.id) ?? null,
+    paymentAttempts: getPaymentAttemptsByBookingId(booking.id),
+    refund: getRefundByBookingId(booking.id) ?? null,
+  };
+}
+
+function buildCustomerBookingRecord(customerId: string, bookingId: string) {
+  const customer = getUserById(customerId);
+  const booking = getBookingById(bookingId);
+
+  if (
+    !customer ||
+    customer.role !== 'CUSTOMER' ||
+    customer.status !== 'ACTIVE' ||
+    !booking ||
+    booking.customerId !== customerId
+  ) {
+    return null;
+  }
+
+  const details = getBookingDetails(booking.id);
+
+  if (!details) {
+    return null;
+  }
+
+  return {
+    customer: {
+      id: customer.id,
+      name: customer.name,
+      email: customer.email,
+      phone: customer.phone,
+      avatar: customer.avatar,
+    },
+    booking,
+    flight: details.flight,
+    passengers: details.passengers.map(toCustomerSafePassenger),
+    reservations: details.reservations.map(getCustomerReservationRecord),
+    tickets: details.tickets
+      .map((ticket) => buildCustomerTicketRecord(customerId, ticket))
+      .filter((item) => item !== null),
+    payment: details.payment ?? null,
+    paymentAttempts: details.paymentAttempts,
+    refund: details.refund ?? null,
+    baggage: getBaggageByBookingId(booking.id),
+  };
+}
+
+/**
+ * Synchronous customer-scoped query. Useful to local UI code that still
+ * expects immediate mock data.
+ */
+export function getCustomerBookingRecords(customerId: string) {
+  if (!isActiveCustomerAccount(customerId)) {
+    return [];
+  }
+
+  return getBookingsByCustomerId(customerId)
+    .map((booking) => buildCustomerBookingRecord(customerId, booking.id))
+    .filter((record) => record !== null)
+    .sort(
+      (left, right) =>
+        new Date(right.booking.createdAt).getTime() -
+        new Date(left.booking.createdAt).getTime(),
+    );
+}
+
+/**
+ * Returns one booking only when it belongs to the active signed-in customer.
+ */
+export function getCustomerBookingRecord(
+  customerId: string,
+  bookingId: string,
+) {
+  return buildCustomerBookingRecord(customerId, bookingId);
+}
+
+/**
+ * Async API-shaped read methods. Call these from Server Components with
+ * `await fetchCustomerBookings(customerId)` or from a service layer.
+ */
+export async function fetchCustomerBookings(customerId: string) {
+  return getCustomerBookingRecords(customerId);
+}
+
+export async function fetchCustomerBookingDetails(
+  customerId: string,
+  bookingId: string,
+) {
+  return getCustomerBookingRecord(customerId, bookingId);
+}
+
+/**
+ * Returns all tickets owned through the active customer's bookings.
+ * Passenger passport numbers are masked in the returned passenger object.
+ */
+export function getCustomerTicketRecords(customerId: string) {
+  if (!isActiveCustomerAccount(customerId)) {
+    return [];
+  }
+
+  return getBookingsByCustomerId(customerId)
+    .flatMap((booking) =>
+      getTicketsByBookingId(booking.id)
+        .map((ticket) => buildCustomerTicketRecord(customerId, ticket))
+        .filter((record) => record !== null),
+    )
+    .sort(
+      (left, right) =>
+        new Date(right.ticket.issuedAt).getTime() -
+        new Date(left.ticket.issuedAt).getTime(),
+    );
+}
+
+export function getCustomerTicketRecord(customerId: string, ticketId: string) {
+  if (!isActiveCustomerAccount(customerId)) {
+    return null;
+  }
+
+  const ticket = getTicketById(ticketId);
+
+  if (!ticket) {
+    return null;
+  }
+
+  return buildCustomerTicketRecord(customerId, ticket);
+}
+
+export async function fetchCustomerTickets(customerId: string) {
+  return getCustomerTicketRecords(customerId);
+}
+
+export async function fetchCustomerTicketDetails(
+  customerId: string,
+  ticketId: string,
+) {
+  return getCustomerTicketRecord(customerId, ticketId);
+}
+
+function getCheckInAvailability(
+  ticketRecord: NonNullable<ReturnType<typeof buildCustomerTicketRecord>>,
+  now: Date,
+) {
+  const { ticket, booking, flight, checkIn } = ticketRecord;
+
+  if (checkIn?.status === 'COMPLETED') {
+    return {
+      canCheckIn: false,
+      availabilityReason: 'This passenger is already checked in.',
+    };
+  }
+
+  if (ticket.status !== 'VALID') {
+    return {
+      canCheckIn: false,
+      availabilityReason: 'This ticket is not valid for check-in.',
+    };
+  }
+
+  if (booking.paymentStatus !== 'PAID') {
+    return {
+      canCheckIn: false,
+      availabilityReason: 'Complete payment before checking in.',
+    };
+  }
+
+  if (!['CONFIRMED', 'CHECKED_IN'].includes(booking.status)) {
+    return {
+      canCheckIn: false,
+      availabilityReason: 'This booking is not confirmed for travel.',
+    };
+  }
+
+  const departureAt = new Date(
+    `${flight.flight.departureDate}T${flight.flight.departureTime}:00+08:00`,
+  );
+
+  if (Number.isNaN(departureAt.getTime()) || departureAt <= now) {
+    return {
+      canCheckIn: false,
+      availabilityReason: 'The scheduled departure time has passed.',
+    };
+  }
+
+  if (flight.flight.status !== 'CHECK_IN_OPEN') {
+    return {
+      canCheckIn: false,
+      availabilityReason: 'Check-in is not currently open for this flight.',
+    };
+  }
+
+  return {
+    canCheckIn: true,
+    availabilityReason: 'Online check-in is available.',
+  };
+}
+
+/**
+ * Returns one customer check-in row per ticket, including tickets that have
+ * not been checked in yet. Eligibility is derived from the current mock flight,
+ * ticket, booking, and payment statuses.
+ */
+export function getCustomerCheckInRecords(
+  customerId: string,
+  now: Date = new Date(),
+) {
+  if (!isActiveCustomerAccount(customerId)) {
+    return [];
+  }
+
+  return getBookingsByCustomerId(customerId)
+    .flatMap((booking) =>
+      getTicketsByBookingId(booking.id)
+        .map((ticket) => buildCustomerTicketRecord(customerId, ticket))
+        .filter((record) => record !== null)
+        .map((record) => ({
+          ...record,
+          ...getCheckInAvailability(record, now),
+          checkInStatus: record.checkIn?.status ?? 'NOT_CHECKED_IN',
+          checkedInAt: record.checkIn?.checkedInAt ?? null,
+          checkInMethod: record.checkIn?.checkInMethod ?? null,
+          boardingStatus: record.boarding?.status ?? 'NOT_BOARDED',
+          boardedAt: record.boarding?.boardedAt ?? null,
+        })),
+    )
+    .sort(
+      (left, right) =>
+        new Date(left.flight.flight.departureDate).getTime() -
+        new Date(right.flight.flight.departureDate).getTime(),
+    );
+}
+
+export function getCustomerCheckInDetails(
+  customerId: string,
+  bookingId: string,
+  now: Date = new Date(),
+) {
+  const bookingRecord = getCustomerBookingRecord(customerId, bookingId);
+
+  if (!bookingRecord) {
+    return null;
+  }
+
+  const checkInRecords = bookingRecord.tickets.map((record) => ({
+    ...record,
+    ...getCheckInAvailability(record, now),
+    checkInStatus: record.checkIn?.status ?? 'NOT_CHECKED_IN',
+    checkedInAt: record.checkIn?.checkedInAt ?? null,
+    checkInMethod: record.checkIn?.checkInMethod ?? null,
+    boardingStatus: record.boarding?.status ?? 'NOT_BOARDED',
+    boardedAt: record.boarding?.boardedAt ?? null,
+  }));
+
+  return {
+    ...bookingRecord,
+    checkIns: checkInRecords,
+    checkInSummary: {
+      total: checkInRecords.length,
+      completed: checkInRecords.filter(
+        (record) => record.checkInStatus === 'COMPLETED',
+      ).length,
+      available: checkInRecords.filter((record) => record.canCheckIn).length,
+      notAvailable: checkInRecords.filter(
+        (record) => record.checkInStatus !== 'COMPLETED' && !record.canCheckIn,
+      ).length,
+    },
+  };
+}
+
+export async function fetchCustomerCheckIns(
+  customerId: string,
+  now: Date = new Date(),
+) {
+  return getCustomerCheckInRecords(customerId, now);
+}
+
+export async function fetchCustomerCheckInDetails(
+  customerId: string,
+  bookingId: string,
+  now: Date = new Date(),
+) {
+  return getCustomerCheckInDetails(customerId, bookingId, now);
+}
+
+/**
+ * A single import surface for customer-facing read operations.
+ *
+ * Example:
+ * const bookings = await aeroPassCustomerRepository.bookings(customerId);
+ */
+export const aeroPassCustomerRepository = {
+  bookings: fetchCustomerBookings,
+  bookingDetails: fetchCustomerBookingDetails,
+  tickets: fetchCustomerTickets,
+  ticketDetails: fetchCustomerTicketDetails,
+  checkIns: fetchCustomerCheckIns,
+  checkInDetails: fetchCustomerCheckInDetails,
+};
+
 export default aeroPassData;

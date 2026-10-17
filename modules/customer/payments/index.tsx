@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { AlertCircle, ArrowRight } from 'lucide-react';
 
 import { CustomerEmptyState } from '@/components/customer/shared/empty-state';
+import { useCustomerId } from '@/modules/auth/hooks/use-customer-id';
 
 import { useCustomerPayments } from './hooks/use-customer-payments';
 import { PaymentFilters } from './components/payment-filters';
@@ -11,11 +12,8 @@ import { PaymentList } from './components/payment-list';
 import { PaymentsHeader } from './components/payments-header';
 import { PaymentStats } from './components/payment-stats';
 
-interface CustomerPaymentsModuleProps {
-  customerId: string;
-}
-
-export function CustomerPaymentsModule({ customerId }: CustomerPaymentsModuleProps) {
+export function CustomerPaymentsModule() {
+  const customerId = useCustomerId();
   const {
     view,
     search,
@@ -26,7 +24,7 @@ export function CustomerPaymentsModule({ customerId }: CustomerPaymentsModulePro
     filteredPayments,
     hasFilters,
     resetFilters,
-  } = useCustomerPayments(customerId);
+  } = useCustomerPayments(customerId ?? '');
 
   if (!view.accountAvailable) {
     return (

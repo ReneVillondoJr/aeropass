@@ -1,19 +1,18 @@
+'use client';
+
 import { AlertCircle } from 'lucide-react';
 
 import { CustomerEmptyState } from '@/components/customer/shared/empty-state';
+import { useCustomerId } from '@/modules/auth/hooks/use-customer-id';
 
 import { BookingStats } from './components/booking-stats';
 import { BookingsExplorer } from './components/bookings-explorer';
 import { BookingsHeader } from './components/bookings-header';
 import { getCustomerBookingsView } from './data/booking-view';
 
-interface CustomerBookingsModuleProps {
-  /** Must be the ID of the currently authenticated CUSTOMER account. */
-  customerId: string;
-}
-
-export function CustomerBookingsModule({ customerId }: CustomerBookingsModuleProps) {
-  const view = getCustomerBookingsView(customerId);
+export function CustomerBookingsModule() {
+  const customerId = useCustomerId();
+  const view = getCustomerBookingsView(customerId ?? '');
 
   if (!view.accountAvailable) {
     return (

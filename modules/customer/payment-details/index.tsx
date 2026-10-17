@@ -1,8 +1,11 @@
+'use client';
+
 import Link from 'next/link';
 import { AlertCircle, ArrowLeft, CreditCard } from 'lucide-react';
 
 import { CustomerEmptyState } from '@/components/customer/shared/empty-state';
 import { CustomerPageHeader } from '@/components/customer/shared/customer-page-header';
+import { useCustomerId } from '@/modules/auth/hooks/use-customer-id';
 
 import { getCustomerPaymentDetailView } from '@/modules/customer/payments/data/payment-view';
 import { PaymentAttempts } from './components/payment-attempts';
@@ -11,15 +14,14 @@ import { PaymentOverview } from './components/payment-overview';
 import { PaymentRefundSummary } from './components/payment-refund-summary';
 
 interface CustomerPaymentDetailsModuleProps {
-  customerId: string;
   paymentId: string;
 }
 
 export function CustomerPaymentDetailsModule({
-  customerId,
   paymentId,
 }: CustomerPaymentDetailsModuleProps) {
-  const payment = getCustomerPaymentDetailView(customerId, paymentId);
+  const customerId = useCustomerId();
+  const payment = getCustomerPaymentDetailView(customerId ?? '', paymentId);
 
   if (!payment) {
     return (

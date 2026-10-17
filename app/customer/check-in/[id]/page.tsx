@@ -1,15 +1,13 @@
 import { CustomerCheckInDetailsModule } from '@/modules/customer/check-in-details';
 
 interface CustomerCheckInDetailsPageProps {
-  params: Promise<{ bookingId: string }>;
+  params: Promise<{ id: string }>;
 }
 
 export default async function CustomerCheckInDetailsPage({
   params,
 }: CustomerCheckInDetailsPageProps) {
-  const { bookingId } = await params;
+  const { id } = await params;
 
-  return (
-    <CustomerCheckInDetailsModule customerId='user-006' bookingId={bookingId} />
-  );
+  return <CustomerCheckInDetailsModule bookingId={id} />;
 }

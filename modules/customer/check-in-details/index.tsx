@@ -1,20 +1,23 @@
+'use client';
+
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 
 import { CustomerEmptyState } from '@/components/customer/shared/empty-state';
 import { CustomerPageHeader } from '@/components/customer/shared/customer-page-header';
+import { useCustomerId } from '@/modules/auth/hooks/use-customer-id';
 
 import { getCustomerCheckInDetailView } from '../check-in/data/check-in-view';
 import { CheckInFlightOverview } from './components/check-in-flight-overview';
 import { CheckInWorkflow } from './components/check-in-workflow';
 
 interface CustomerCheckInDetailsModuleProps {
-  customerId: string;
   bookingId: string;
 }
 
-export function CustomerCheckInDetailsModule({ customerId, bookingId }: CustomerCheckInDetailsModuleProps) {
-  const detail = getCustomerCheckInDetailView(customerId, bookingId);
+export function CustomerCheckInDetailsModule({ bookingId }: CustomerCheckInDetailsModuleProps) {
+  const customerId = useCustomerId();
+  const detail = getCustomerCheckInDetailView(customerId ?? '', bookingId);
 
   if (!detail) {
     return (

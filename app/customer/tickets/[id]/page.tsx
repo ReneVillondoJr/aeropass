@@ -8,15 +8,13 @@ export const metadata: Metadata = {
 };
 
 interface CustomerTicketDetailsPageProps {
-  params: Promise<{ ticketId: string }>;
+  params: Promise<{ id: string }>;
 }
 
 export default async function CustomerTicketDetailsPage({
   params,
 }: CustomerTicketDetailsPageProps) {
-  const { ticketId } = await params;
+  const { id } = await params;
 
-  return (
-    <CustomerTicketDetailsModule customerId='user-006' ticketId={ticketId} />
-  );
+  return <CustomerTicketDetailsModule ticketId={id} />;
 }

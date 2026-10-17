@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { AlertCircle, ArrowRight } from 'lucide-react';
 
 import { CustomerEmptyState } from '@/components/customer/shared/empty-state';
+import { useCustomerId } from '@/modules/auth/hooks/use-customer-id';
 
 import { TicketFilters } from './components/ticket-filters';
 import { TicketList } from './components/ticket-list';
@@ -11,9 +12,8 @@ import { TicketStats } from './components/ticket-stats';
 import { TicketsHeader } from './components/tickets-header';
 import { useCustomerTickets } from './hooks/use-customer-tickets';
 
-const DEMO_CUSTOMER_ID = 'user-006';
-
 export function CustomerTicketsModule() {
+  const customerId = useCustomerId();
   const {
     view,
     search,
@@ -24,7 +24,7 @@ export function CustomerTicketsModule() {
     filteredTickets,
     hasFilters,
     resetFilters,
-  } = useCustomerTickets(DEMO_CUSTOMER_ID);
+  } = useCustomerTickets(customerId ?? '');
 
   if (!view.accountAvailable) {
     return (

@@ -1,9 +1,12 @@
+'use client';
+
 import Link from 'next/link';
 import { AlertCircle, ArrowLeft, CalendarClock, CreditCard, Ticket as TicketIcon } from 'lucide-react';
 
 import { CustomerEmptyState } from '@/components/customer/shared/empty-state';
 import { CustomerPageHeader } from '@/components/customer/shared/customer-page-header';
 import { CustomerStatusBadge } from '@/components/customer/shared/customer-status-badge';
+import { useCustomerId } from '@/modules/auth/hooks/use-customer-id';
 
 import { BoardingPass } from './components/boarding-pass';
 import { TicketItinerary } from './components/ticket-itinerary';
@@ -12,7 +15,6 @@ import { TicketTravelStatus } from './components/ticket-travel-status';
 import { getCustomerTicketDetailView } from '@/modules/customer/tickets/data/ticket-view';
 
 interface CustomerTicketDetailsModuleProps {
-  customerId: string;
   ticketId: string;
 }
 
@@ -22,8 +24,9 @@ function formatDate(value: string) {
   return new Intl.DateTimeFormat('en-PH', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Manila' }).format(date);
 }
 
-export function CustomerTicketDetailsModule({ customerId, ticketId }: CustomerTicketDetailsModuleProps) {
-  const ticket = getCustomerTicketDetailView(customerId, ticketId);
+export function CustomerTicketDetailsModule({ ticketId }: CustomerTicketDetailsModuleProps) {
+  const customerId = useCustomerId();
+  const ticket = getCustomerTicketDetailView(customerId ?? '', ticketId);
 
   if (!ticket) {
     return (
