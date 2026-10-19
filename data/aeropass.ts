@@ -3953,6 +3953,215 @@ export const aeroPassCustomerRepository = {
   ticketDetails: fetchCustomerTicketDetails,
   checkIns: fetchCustomerCheckIns,
   checkInDetails: fetchCustomerCheckInDetails,
+  refunds: fetchCustomerRefunds,
+  refundDetails: fetchCustomerRefundDetails,
 };
+
+/* -------------------------------------------------------------------------- */
+/* CUSTOMER REFUND READ REPOSITORY                                            */
+/* -------------------------------------------------------------------------- */
+
+export interface CustomerRefundListRecord {
+  refund: Refund;
+
+  booking: Pick<
+    Booking,
+    | 'id'
+    | 'bookingReference'
+    | 'status'
+    | 'passengerCount'
+    | 'total'
+    | 'currency'
+    | 'paymentStatus'
+    | 'paymentMethod'
+    | 'createdAt'
+  >;
+
+  payment: Pick<
+    Payment,
+    | 'id'
+    | 'provider'
+    | 'providerReference'
+    | 'paymentMethod'
+    | 'amount'
+    | 'currency'
+    | 'status'
+    | 'paidAt'
+    | 'createdAt'
+  > | null;
+
+  flight: {
+    flightNumber: string;
+    departureDate: string;
+    departureTime: string;
+    arrivalDate: string;
+    arrivalTime: string;
+    status: FlightStatus;
+    gate: string;
+    terminal: string;
+    delayMinutes: number;
+    durationMinutes: number;
+    origin: Pick<Airport, 'code' | 'city' | 'name' | 'terminal'>;
+    destination: Pick<Airport, 'code' | 'city' | 'name' | 'terminal'>;
+    aircraftModel: string | null;
+  };
+
+  passengerNames: string[];
+}
+
+export function getCustomerRefundRecords(
+  customerId: string,
+): CustomerRefundListRecord[] {
+  if (!isActiveCustomerAccount(customerId)) {
+    return [];
+  }
+
+  const records: CustomerRefundListRecord[] = [];
+
+  for (const refund of refunds) {
+    const booking = getBookingById(refund.bookingId);
+
+    // A customer can only see refunds linked to their own bookings.
+    if (!booking || booking.customerId !== customerId) {
+      continue;
+    }
+
+    const flightDetails = getFlightDetails(booking.flightId);
+
+    if (
+      !flightDetails?.flight ||
+      !flightDetails.origin ||
+      !flightDetails.destination
+    ) {
+      continue;
+    }
+
+    const payment = getPaymentById(refund.paymentId);
+
+    const linkedPayment =
+      payment && payment.bookingId === booking.id ?
+        {
+          id: payment.id,
+          provider: payment.provider,
+          providerReference: payment.providerReference,
+          paymentMethod: payment.paymentMethod,
+          amount: payment.amount,
+          currency: payment.currency,
+          status: payment.status,
+          paidAt: payment.paidAt,
+          createdAt: payment.createdAt,
+        }
+      : null;
+
+    records.push({
+      refund,
+      booking: {
+        id: booking.id,
+        bookingReference: booking.bookingReference,
+        status: booking.status,
+        passengerCount: booking.passengerCount,
+        total: booking.total,
+        currency: booking.currency,
+        paymentStatus: booking.paymentStatus,
+        paymentMethod: booking.paymentMethod,
+        createdAt: booking.createdAt,
+      },
+      payment: linkedPayment,
+      flight: {
+        flightNumber: flightDetails.flight.flightNumber,
+        departureDate: flightDetails.flight.departureDate,
+        departureTime: flightDetails.flight.departureTime,
+        arrivalDate: flightDetails.flight.arrivalDate,
+        arrivalTime: flightDetails.flight.arrivalTime,
+        status: flightDetails.flight.status,
+        gate: flightDetails.flight.gate,
+        terminal: flightDetails.flight.terminal,
+        delayMinutes: flightDetails.flight.delayMinutes,
+        durationMinutes: flightDetails.flight.durationMinutes,
+        origin: {
+          code: flightDetails.origin.code,
+          city: flightDetails.origin.city,
+          name: flightDetails.origin.name,
+          terminal: flightDetails.origin.terminal,
+        },
+        destination: {
+          code: flightDetails.destination.code,
+          city: flightDetails.destination.city,
+          name: flightDetails.destination.name,
+          terminal: flightDetails.destination.terminal,
+        },
+        aircraftModel: flightDetails.aircraft?.model ?? null,
+      },
+      passengerNames: getPassengersByBookingId(booking.id).map((passenger) =>
+        [passenger.firstName, passenger.middleName, passenger.lastName]
+          .filter(Boolean)
+          .join(' '),
+      ),
+    });
+  }
+
+  return records.sort(
+    (left, right) =>
+      new Date(right.refund.requestedAt).getTime() -
+      new Date(left.refund.requestedAt).getTime(),
+  );
+}
+
+export function getCustomerRefundRecord(customerId: string, refundId: string) {
+  if (!isActiveCustomerAccount(customerId)) {
+    return null;
+  }
+
+  const refund = getRefundById(refundId);
+
+  if (!refund) {
+    return null;
+  }
+
+  const booking = getBookingById(refund.bookingId);
+
+  if (!booking || booking.customerId !== customerId) {
+    return null;
+  }
+
+  const bookingRecord = getCustomerBookingRecord(customerId, booking.id);
+
+  if (
+    !bookingRecord ||
+    !bookingRecord.flight?.flight ||
+    !bookingRecord.flight.origin ||
+    !bookingRecord.flight.destination
+  ) {
+    return null;
+  }
+
+  const payment = getPaymentById(refund.paymentId);
+
+  const linkedPayment =
+    payment && payment.bookingId === booking.id ? payment : null;
+
+  return {
+    ...bookingRecord,
+    refund,
+    payment: linkedPayment,
+  };
+}
+
+export type CustomerRefundDetailRecord = NonNullable<
+  ReturnType<typeof getCustomerRefundRecord>
+>;
+
+export async function fetchCustomerRefunds(
+  customerId: string,
+): Promise<CustomerRefundListRecord[]> {
+  return getCustomerRefundRecords(customerId);
+}
+
+export async function fetchCustomerRefundDetails(
+  customerId: string,
+  refundId: string,
+): Promise<CustomerRefundDetailRecord | null> {
+  return getCustomerRefundRecord(customerId, refundId);
+}
 
 export default aeroPassData;
