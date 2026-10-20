@@ -3958,6 +3958,299 @@ export const aeroPassCustomerRepository = {
 };
 
 /* -------------------------------------------------------------------------- */
+/* CUSTOMER PASSENGER READ REPOSITORY                                         */
+/* -------------------------------------------------------------------------- */
+
+export interface CustomerPassengerTicketRecord {
+  id: string;
+  ticketNumber: string;
+  status: TicketStatus;
+  issuedAt: string;
+  expiresAt: string;
+
+  checkIn: {
+    status: CheckInStatus;
+    checkedInAt: string | null;
+    checkInMethod: CheckIn['checkInMethod'];
+  } | null;
+
+  boarding: {
+    status: BoardingStatus;
+    gate: string;
+    boardedAt: string | null;
+  } | null;
+}
+
+export interface CustomerPassengerRecord {
+  passenger: CustomerSafePassenger;
+
+  booking: Pick<
+    Booking,
+    | 'id'
+    | 'bookingReference'
+    | 'status'
+    | 'passengerCount'
+    | 'total'
+    | 'currency'
+    | 'paymentStatus'
+    | 'paymentMethod'
+    | 'createdAt'
+    | 'expiresAt'
+  >;
+
+  flight: {
+    flight: Flight;
+    route: Route | null;
+    origin: Airport;
+    destination: Airport;
+
+    aircraft: Pick<
+      Aircraft,
+      'model' | 'registrationNumber' | 'manufacturer' | 'totalSeats'
+    > | null;
+  };
+
+  reservation: {
+    id: string;
+    status: Reservation['status'];
+    price: number;
+
+    seat: Pick<
+      AircraftSeat,
+      'id' | 'seatNumber' | 'cabinClass' | 'seatType'
+    > | null;
+
+    fareClass: Pick<
+      FareClass,
+      | 'id'
+      | 'name'
+      | 'cabinClass'
+      | 'baggageAllowanceKg'
+      | 'refundable'
+      | 'changeable'
+      | 'changeFee'
+    > | null;
+  } | null;
+
+  tickets: CustomerPassengerTicketRecord[];
+  baggage: Baggage[];
+}
+
+function buildCustomerPassengerRecord(
+  customerId: string,
+  passenger: Passenger,
+): CustomerPassengerRecord | null {
+  if (!isActiveCustomerAccount(customerId)) {
+    return null;
+  }
+
+  const booking = getBookingById(passenger.bookingId);
+
+  if (!booking || booking.customerId !== customerId) {
+    return null;
+  }
+
+  const flightDetails = getFlightDetails(booking.flightId);
+
+  if (
+    !flightDetails?.flight ||
+    !flightDetails.origin ||
+    !flightDetails.destination
+  ) {
+    return null;
+  }
+
+  const rawReservation = reservations.find(
+    (reservation) =>
+      reservation.bookingId === booking.id &&
+      reservation.passengerId === passenger.id &&
+      reservation.flightId === booking.flightId,
+  );
+
+  let passengerReservation: CustomerPassengerRecord['reservation'] = null;
+
+  if (rawReservation) {
+    const seat = aircraftSeats.find(
+      (item) => item.id === rawReservation.seatId,
+    );
+
+    const fareClass = getFareClassById(rawReservation.fareClassId);
+
+    passengerReservation = {
+      id: rawReservation.id,
+      status: rawReservation.status,
+      price: rawReservation.price,
+
+      seat:
+        seat ?
+          {
+            id: seat.id,
+            seatNumber: seat.seatNumber,
+            cabinClass: seat.cabinClass,
+            seatType: seat.seatType,
+          }
+        : null,
+
+      fareClass:
+        fareClass ?
+          {
+            id: fareClass.id,
+            name: fareClass.name,
+            cabinClass: fareClass.cabinClass,
+            baggageAllowanceKg: fareClass.baggageAllowanceKg,
+            refundable: fareClass.refundable,
+            changeable: fareClass.changeable,
+            changeFee: fareClass.changeFee,
+          }
+        : null,
+    };
+  }
+
+  const passengerTickets: CustomerPassengerTicketRecord[] = tickets
+    .filter(
+      (ticket) =>
+        ticket.bookingId === booking.id && ticket.passengerId === passenger.id,
+    )
+    .map((ticket) => {
+      const checkIn = getCheckInByTicketId(ticket.id);
+      const boardingRecord = getBoardingByTicketId(ticket.id);
+
+      return {
+        id: ticket.id,
+        ticketNumber: ticket.ticketNumber,
+        status: ticket.status,
+        issuedAt: ticket.issuedAt,
+        expiresAt: ticket.expiresAt,
+
+        checkIn:
+          checkIn ?
+            {
+              status: checkIn.status,
+              checkedInAt: checkIn.checkedInAt,
+              checkInMethod: checkIn.checkInMethod,
+            }
+          : null,
+
+        boarding:
+          boardingRecord ?
+            {
+              status: boardingRecord.status,
+              gate: boardingRecord.gate,
+              boardedAt: boardingRecord.boardedAt,
+            }
+          : null,
+      };
+    });
+
+  return {
+    passenger: toCustomerSafePassenger(passenger),
+
+    booking: {
+      id: booking.id,
+      bookingReference: booking.bookingReference,
+      status: booking.status,
+      passengerCount: booking.passengerCount,
+      total: booking.total,
+      currency: booking.currency,
+      paymentStatus: booking.paymentStatus,
+      paymentMethod: booking.paymentMethod,
+      createdAt: booking.createdAt,
+      expiresAt: booking.expiresAt,
+    },
+
+    flight: {
+      flight: flightDetails.flight,
+      route: flightDetails.route ?? null,
+      origin: flightDetails.origin,
+      destination: flightDetails.destination,
+
+      aircraft:
+        flightDetails.aircraft ?
+          {
+            model: flightDetails.aircraft.model,
+            registrationNumber: flightDetails.aircraft.registrationNumber,
+            manufacturer: flightDetails.aircraft.manufacturer,
+            totalSeats: flightDetails.aircraft.totalSeats,
+          }
+        : null,
+    },
+
+    reservation: passengerReservation,
+    tickets: passengerTickets,
+
+    baggage: getBaggageByBookingId(booking.id).filter(
+      (bag) => bag.passengerId === passenger.id,
+    ),
+  };
+}
+
+/**
+ * Returns passenger records associated with bookings owned by this customer.
+ */
+export function getCustomerPassengerRecords(
+  customerId: string,
+): CustomerPassengerRecord[] {
+  if (!isActiveCustomerAccount(customerId)) {
+    return [];
+  }
+
+  return getBookingsByCustomerId(customerId)
+    .flatMap((booking) =>
+      getPassengersByBookingId(booking.id)
+        .map((passenger) => buildCustomerPassengerRecord(customerId, passenger))
+        .filter((record): record is CustomerPassengerRecord => record !== null),
+    )
+    .sort((left, right) => {
+      const difference =
+        new Date(right.booking.createdAt).getTime() -
+        new Date(left.booking.createdAt).getTime();
+
+      if (difference !== 0) {
+        return difference;
+      }
+
+      return left.passenger.lastName.localeCompare(right.passenger.lastName);
+    });
+}
+
+/**
+ * Returns one passenger only when its associated booking belongs to the
+ * active customer.
+ */
+export function getCustomerPassengerRecord(
+  customerId: string,
+  passengerId: string,
+): CustomerPassengerRecord | null {
+  if (!isActiveCustomerAccount(customerId)) {
+    return null;
+  }
+
+  const passenger = getPassengerById(passengerId);
+
+  if (!passenger) {
+    return null;
+  }
+
+  return buildCustomerPassengerRecord(customerId, passenger);
+}
+
+/**
+ * Async methods for server-side customer route fetching.
+ */
+export async function fetchCustomerPassengers(
+  customerId: string,
+): Promise<CustomerPassengerRecord[]> {
+  return getCustomerPassengerRecords(customerId);
+}
+
+export async function fetchCustomerPassengerDetails(
+  customerId: string,
+  passengerId: string,
+): Promise<CustomerPassengerRecord | null> {
+  return getCustomerPassengerRecord(customerId, passengerId);
+}
+
+/* -------------------------------------------------------------------------- */
 /* CUSTOMER REFUND READ REPOSITORY                                            */
 /* -------------------------------------------------------------------------- */
 
