@@ -3953,6 +3953,8 @@ export const aeroPassCustomerRepository = {
   ticketDetails: fetchCustomerTicketDetails,
   checkIns: fetchCustomerCheckIns,
   checkInDetails: fetchCustomerCheckInDetails,
+  passengers: fetchCustomerPassengers,
+  passengerDetails: fetchCustomerPassengerDetails,
   refunds: fetchCustomerRefunds,
   refundDetails: fetchCustomerRefundDetails,
 };

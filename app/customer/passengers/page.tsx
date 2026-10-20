@@ -1,5 +1,5 @@
 import { aeroPassCustomerRepository } from '@/data/aeropass';
-import { CustomerPassengersModule } from '@/modules/customer/passengers';
+import { CustomerPassengersModule } from '@/modules/customer/passenger';
 
 export const dynamic = 'force-dynamic';
 

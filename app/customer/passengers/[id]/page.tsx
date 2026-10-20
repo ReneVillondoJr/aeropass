@@ -5,7 +5,7 @@ import { CustomerPassengerDetailsModule } from '@/modules/customer/passenger-det
 
 interface CustomerPassengerDetailsPageProps {
   params: Promise<{
-    passengerId: string;
+    id: string;
   }>;
 }
 
@@ -18,7 +18,7 @@ const DEMO_CUSTOMER_ID = 'user-006';
 export default async function CustomerPassengerDetailsPage({
   params,
 }: CustomerPassengerDetailsPageProps) {
-  const { passengerId } = await params;
+  const { id: passengerId } = await params;
 
   const record = await aeroPassCustomerRepository.passengerDetails(
     DEMO_CUSTOMER_ID,
