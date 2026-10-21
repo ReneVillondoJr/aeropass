@@ -2,6 +2,12 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
 import { CustomerShell } from '@/components/customer/layout/shell';
+import {
+  getCustomerNotifications,
+  getNotificationStats,
+} from '@/modules/customer/notifications/data/notification';
+
+const DEMO_CUSTOMER_ID = 'user-006';
 
 export const metadata: Metadata = {
   title: {
@@ -17,8 +23,12 @@ interface CustomerLayoutProps {
 }
 
 export default function CustomerLayout({ children }: CustomerLayoutProps) {
+  const notificationCount = getNotificationStats(
+    getCustomerNotifications(DEMO_CUSTOMER_ID),
+  ).unread;
+
   return (
-    <CustomerShell>
+    <CustomerShell notificationCount={notificationCount}>
       <main
         id='customer-main'
         tabIndex={-1}
